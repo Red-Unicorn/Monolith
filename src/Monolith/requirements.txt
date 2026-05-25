@@ -1,0 +1,45 @@
+# ==============================================================================
+# Manifest:    requirements.txt
+# Description: Production dependencies for the Monolith cross-platform engine.
+# Author:      Red Unicorn (Intl') Holding Group
+# License:     Proprietary – All rights reserved
+# Version:     1.1.0
+# ==============================================================================
+
+# ── Graphical User Interface Layer ────────────────────────────────────────────
+customtkinter==5.2.2      # Modern UI layout framework wrapping Tkinter targets
+Pillow==11.2.1            # Advanced image processing engine for logos and icons
+
+# ── Backend Infrastructure & Database Connectors ──────────────────────────────
+postgrest==1.0.2          # RESTful API client engine wrapper for PostgreSQL states
+realtime==2.4.3           # Realtime listener connector for database sync signals
+supabase==2.15.3          # Principal Supabase client gateway integration tier
+
+# ── Data Validation & Integrity ───────────────────────────────────────────────
+pydantic==2.11.4          # Runtime data parsing and type-safety constraint parsing
+
+# ── Computational Engineering & Data Analytics ────────────────────────────────
+openpyxl==3.1.5           # Native Excel spreadsheet data manipulation layer
+pandas==2.2.3             # High-performance algorithmic data structure matrix tables
+
+# ── Networking & Asynchronous HTTP Pipelines ──────────────────────────────────
+aiohttp==3.12.2           # Asynchronous HTTP client/server communication engine
+httpx==0.28.1             # Type-safe, concurrent HTTP orchestration client engine
+
+# ── Performance Logging & Serialization ───────────────────────────────────────
+orjson==3.10.18           # Low-latency, fast JSON parsing and serialization binary
+
+# ── Business Logic & System Utilities ─────────────────────────────────────────
+pycountry==24.6.1         # ISO standards database for country/currency mappings
+python-dotenv==1.1.0      # Secure application injection variable configuration engine
+rapidfuzz==3.13.0         # Highly optimized algorithmic string metric matching framework
+
+# ── Native macOS System Drivers (Conditional AppKit/Quartz Injections) ───────
+# The sys_platform environment markers insulate non-Darwin execution targets 
+# (Windows/Linux) from compile errors during distributed package resolution pipelines.
+pyobjc-core==10.3 ; sys_platform == 'darwin'
+pyobjc-framework-Cocoa==10.3 ; sys_platform == 'darwin'
+pyobjc-framework-Quartz==10.3 ; sys_platform == 'darwin'
+
+# ── Compilers & Distributable Packaging Tools ─────────────────────────────────
+pyinstaller==6.14.0       # Application freezing pipeline tool for executable generation

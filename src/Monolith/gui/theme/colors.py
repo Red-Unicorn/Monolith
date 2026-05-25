@@ -1,0 +1,64 @@
+"""
+gui/theme/colors.py  –  Monolith Design System
+=======================================
+Centralised colour palette
+
+Author  : Red Unicorn (Intl') Holding Group
+License : Proprietary – All rights reserved
+"""
+
+from __future__ import annotations
+
+
+BACKGROUND = "#010C16"
+BACKGROUND_LIGHT = "#072038"
+BUTTON_PRIMARY = "#1B4F72"
+BUTTON_SECONDARY = "#7C212D"
+
+PRIMARY_HOVER = "#7C212D"
+SECONDARY_HOVER = "#FFFFFF"
+
+
+BORDER = "#243248"
+BORDER_PRIMARY = "#1B4F72"
+BUTTON_SECONDARY = "#7C212D"
+BORDER_HOVER = "#FFFFFF"
+
+TEXT = "#FFFFFF"
+TEXT_SECONDARY = "#B8C0CC"
+
+SUCCESS = "#22C55E"
+WARNING = "#F59E0B"
+ERROR = "#EF4444"
+
+BUTTON_STYLES = {
+    "primary": (BUTTON_PRIMARY, PRIMARY_HOVER),
+    "secondary": (BUTTON_SECONDARY, SECONDARY_HOVER),
+}
+
+# BACKGROUND = "#0F0F0F"
+# CARD = "#162033"
+# CARD_LIGHT = "#1C2A41"
+# CARD_HOVER = "#243248"
+# RU = "#7C212D"
+# RU_BLUE = "#1B4F72"
+# RU_BLUE_LIGHT = "#316080"
+# GOLD = "#D68910"
+# PRIMARY = "#FF4B4B"
+# PRIMARY_HOVER = "#FF6B6B"
+# TEXT = "#FFFFFF"
+# TEXT_SECONDARY = "#B8C0CC"
+# BORDER = "#243248"
+# SUCCESS = "#22C55E"
+# WARNING = "#F59E0B"
+# ERROR = "#EF4444"
+# TOPBAR = "#101826"
+SIDEBAR = "#0E1523"
+# GRADIENT_START = "#FF4B4B"
+# GRADIENT_END = "#FF7A59"
+# SHADOW = "#09101A"
+# CARD_HOVER = "#1E2D45"
+
+# BUTTON_PRIMARY = "#7C212D"
+# BUTTON_SECONDARY = "#1B4F72"
+# BORDER_HOVER = "#FFFFFF"
