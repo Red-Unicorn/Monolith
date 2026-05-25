@@ -10,7 +10,7 @@ from core.services.auth_service import AuthService
 from gui.theme.colors import BACKGROUND
 from gui.theme.layout import INPUT_HEIGHT, INPUT_WIDTH, LOGO_HEIGHT, LOGO_WIDTH, PAD_MD, PAD_XS
 from core.utils.paths import get_asset_path
-
+from core.utils.logger import logger
 
 class LoginPage(ctk.CTkFrame):
 
@@ -19,6 +19,7 @@ class LoginPage(ctk.CTkFrame):
         super().__init__(master)
 
         self.on_login = on_login
+        self.auth_service = AuthService()
 
         # Build UI
         self._build_layout()
@@ -168,29 +169,34 @@ class LoginPage(ctk.CTkFrame):
         Authenticate user.
         """
 
-        self.on_login()
-        # email = self.email_entry.get()
-        # password = self.password_entry.get()
+        # self.on_login()
+        # logger.info("Login Successful")
 
-        # try:
+        email = self.email_entry.get()
+        password = self.password_entry.get()
 
-        #     response = self.auth_service.login(
-        #         email,
-        #         password,
-        #     )
+        try:
 
-        #     if response.user:
+            response = self.auth_service.login(
+                email,
+                password,
+            )
 
-        #         self.on_login()
+            if response.user:
 
-        #     else:
+                self.on_login()
+                logger.info(f"Login successful:{email}")
 
-        #         self.error_label.configure(
-        #             text="Authentication failed",
-        #         )
+            else:
 
-        # except Exception as error:
+                self.error_label.configure(
+                    text="Authentication failed",
+                )
+                logger.error("Authentication failed")
 
-        #     self.error_label.configure(
-        #         text=str(error),
-        #     )
+        except Exception as error:
+
+            self.error_label.configure(
+                text=str(error),
+            )
+            logger.error(f"An error occurred during login: {error}")

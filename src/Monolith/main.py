@@ -13,9 +13,12 @@ from __future__ import annotations
 # ── Local ─────────────────────────────────────────────────────────────────────
 from gui.window_manager import MonolithApp
 from gui.theme.fonts import register_application_fonts
+from core.utils.env import load_environment
+from core.utils.logger import logger
 
-__version__ = "1.0.0"
-__author__ = "Red Unicorn (Intl') Holding Group"
+load_environment()
+
+logger.info("Application started")
 
 
 def main() -> None:

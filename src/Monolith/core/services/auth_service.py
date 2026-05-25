@@ -5,7 +5,7 @@ Authentication service for Monolith.
 from supabase import Client
 
 from core.database.supabase_client import SupabaseConnection
-
+from core.utils.logger import logger
 
 class AuthService:
     """
