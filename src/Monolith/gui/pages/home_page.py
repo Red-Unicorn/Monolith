@@ -72,24 +72,24 @@ class HomePage(ctk.CTkFrame):
             column=0,
             sticky="nsew",
             padx=40,
-            pady=(30, 0),
+            pady=(0, 0),
         )
 
         self.step_label = ctk.CTkLabel(
             self.header_frame,
             text="STEP 1 OF 3",
-            font=("Arial", 12, "bold"),
+            font=("Oswald", 18, "bold"),
             text_color=TEXT_MUTED,
         )
-        self.step_label.pack(anchor="n")
+        self.step_label.pack(anchor="w")#,pady=(0, 20))
 
         self.title_label = ctk.CTkLabel(
             self.header_frame,
             text="Create Reference Number for:",
-            font=("Arial", 12, "bold"),
+            font=("PT Sans", 12, "bold"),
             text_color=TEXT,
         )
-        self.title_label.pack(anchor="w", pady=(0, 0))
+        self.title_label.pack(anchor="w")#, pady=(10, 0))
 
         # self.subtitle_label = ctk.CTkLabel(
         #     self.header_frame,
@@ -112,9 +112,9 @@ class HomePage(ctk.CTkFrame):
             column=0,
             sticky="nsew",
             # padx=20,
-            # pady=20,
+            pady=20,
             padx=60,
-            pady=(20, 60),
+            # pady=(20, 20),
         )
 
         self.content_frame.grid_rowconfigure(0, weight=1)
@@ -128,7 +128,7 @@ class HomePage(ctk.CTkFrame):
         folder_icon = ctk.CTkImage(
         light_image=Image.open(get_asset_path("icons/folder.png")),
         dark_image=Image.open(get_asset_path("icons/folder.png")),
-        size=(48, 48),
+        size=(64, 64),
         )
         
         self.folder_button = make_button(
@@ -138,7 +138,7 @@ class HomePage(ctk.CTkFrame):
             enable_border_hover=True,
             image=folder_icon,
             variant="primary",
-            size="xl",)
+            size="lg",)
 
         self.folder_button.grid(
             row=0,
@@ -176,7 +176,7 @@ class HomePage(ctk.CTkFrame):
         document_icon = ctk.CTkImage(
         light_image=Image.open(get_asset_path("icons/file.png")),
         dark_image=Image.open(get_asset_path("icons/file.png")),
-        size=(32, 32),
+        size=(64, 64),
         )
 
         self.document_button = make_button(
@@ -186,7 +186,7 @@ class HomePage(ctk.CTkFrame):
             enable_border_hover=True,
             image=document_icon,
             variant="primary",
-            size="xl",)
+            size="lg",)
         
         # self.document_button = ctk.CTkButton(
         #     self.content_frame,
