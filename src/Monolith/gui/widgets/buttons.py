@@ -9,6 +9,8 @@ def make_button(
     command=None,
     variant: str = "primary",
     size: str = "md",
+    image=None,
+    compound="top",
     enable_border_hover: bool = True,
     width: int | None = None,
     height: int | None = None,
@@ -22,7 +24,7 @@ def make_button(
     - allows custom sizing override
     """
 
-    fg_color, hover_color = BUTTON_STYLES.get(variant, BUTTON_STYLES["primary"])
+    fg_color, border_color, hover_color = BUTTON_STYLES.get(variant, BUTTON_STYLES["primary"])
 
     # ── SIZE LOGIC ──────────────────────────────────────────────
     if width is not None and height is not None:
@@ -42,29 +44,31 @@ def make_button(
         fg_color=fg_color,
         border_width=2,
 
-        # hover_color=hover_color,
+        hover_color=hover_color,
         border_color=fg_color,
 
         text_color=text_color,
         font=font,
         corner_radius=corner_radius,
+        image=image,
+        compound=compound,
     )
 
     if enable_border_hover:
         button.bind(
-            "<Enter>", lambda event, b=button: b.configure(border_color=hover_color, border_width=2)
+            "<Enter>", lambda event, b=button: b.configure(fg_color=hover_color, border_color=border_color, border_width=2)
         )
 
         button.bind(
-            "<Leave>", lambda event, b=button: b.configure(border_color=fg_color, border_width=0)
+            "<Leave>", lambda event, b=button: b.configure(fg_color=fg_color, border_color=fg_color, border_width=0)
         )
     else:
         button.bind(
-            "<Enter>", lambda event, b=button: b.configure(border_color=fg_color, border_width=0)
+            "<Enter>", lambda event, b=button: b.configure(fg_color=hover_color, border_color=fg_color, border_width=0)
         )
 
         button.bind(
-            "<Leave>", lambda event, b=button: b.configure(border_color=fg_color, border_width=0)
+            "<Leave>", lambda event, b=button: b.configure(fg_color=fg_color, border_color=fg_color, border_width=0)
         )
 
     return button

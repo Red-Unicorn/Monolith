@@ -13,42 +13,15 @@ VERSION:       7.0.0
 from __future__ import annotations
 from typing import Any, Optional
 import customtkinter as ctk
+from PIL import Image
 
 # ── Design System Injections ──────────────────────────────────────────────────
-from gui.theme.colors import BACKGROUND, TEXT#, RU_BLUE, RU
+from gui.widgets.buttons import make_button
+from core.utils.paths import get_asset_path
+from gui.theme.colors import BACKGROUND, TEXT_MUTED, TEXT_BIS, TEXT
 from gui.theme.layout import APP_WIDTH, APP_HEIGHT
 
-__all__ = ["HomePage"]
-"""
-================================================================================
-PROJECT:       Monolith Application Engine
-MODULE:        gui.pages.home_page
-DESCRIPTION:   Accessibility-focused wizard home page with two large workflow
-               paths and step indicator support.
-AUTHOR:        Red Unicorn (Intl') Holding Group – Core Engineering Team
-LICENSE:       Proprietary – All rights reserved
-VERSION:       8.0.0
-================================================================================
-"""
 
-# ──────────────────────────────────────────────────────────────────────────────
-# DESIGN SYSTEM
-# ──────────────────────────────────────────────────────────────────────────────
-
-APP_WIDTH = 1280
-APP_HEIGHT = 720
-
-BG_COLOR = "#0F172A"
-CARD_COLOR = "#1E293B"
-
-PRIMARY = "#2563EB"
-PRIMARY_HOVER = "#1D4ED8"
-
-SECONDARY = "#334155"
-SECONDARY_HOVER = "#475569"
-
-TEXT = "#F8FAFC"
-MUTED = "#94A3B8"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -72,7 +45,7 @@ class HomePage(ctk.CTkFrame):
     """
 
     def __init__(self, master, on_navigate=None):
-        super().__init__(master, fg_color=BG_COLOR)
+        super().__init__(master, fg_color=BACKGROUND)
 
         self.on_navigate = on_navigate
 
@@ -99,32 +72,32 @@ class HomePage(ctk.CTkFrame):
             column=0,
             sticky="nsew",
             padx=40,
-            pady=(30, 10),
+            pady=(30, 0),
         )
 
         self.step_label = ctk.CTkLabel(
             self.header_frame,
             text="STEP 1 OF 3",
-            font=("Arial", 18, "bold"),
-            text_color=MUTED,
+            font=("Arial", 12, "bold"),
+            text_color=TEXT_MUTED,
         )
-        self.step_label.pack(anchor="w")
+        self.step_label.pack(anchor="n")
 
         self.title_label = ctk.CTkLabel(
             self.header_frame,
-            text="Choose a Workflow",
-            font=("Arial", 36, "bold"),
+            text="Create Reference Number for:",
+            font=("Arial", 12, "bold"),
             text_color=TEXT,
         )
-        self.title_label.pack(anchor="w", pady=(10, 0))
+        self.title_label.pack(anchor="w", pady=(0, 0))
 
-        self.subtitle_label = ctk.CTkLabel(
-            self.header_frame,
-            text="Select the type of operation you want to perform.",
-            font=("Arial", 18),
-            text_color=MUTED,
-        )
-        self.subtitle_label.pack(anchor="w", pady=(10, 0))
+        # self.subtitle_label = ctk.CTkLabel(
+        #     self.header_frame,
+        #     text="Underping ?",
+        #     font=("Arial", 12),
+        #     text_color=MUTED,
+        # )
+        # self.subtitle_label.pack(anchor="w", pady=(10, 0))
 
         # ──────────────────────────────────────────────────────────────────
         # MAIN CONTENT
@@ -138,8 +111,10 @@ class HomePage(ctk.CTkFrame):
             row=1,
             column=0,
             sticky="nsew",
-            padx=40,
-            pady=20,
+            # padx=20,
+            # pady=20,
+            padx=60,
+            pady=(20, 60),
         )
 
         self.content_frame.grid_rowconfigure(0, weight=1)
@@ -150,49 +125,87 @@ class HomePage(ctk.CTkFrame):
         # PROJECT / RESOURCE BUTTON
         # ──────────────────────────────────────────────────────────────────
 
-        self.project_button = ctk.CTkButton(
-            self.content_frame,
-            text="PROJECT / RESOURCE",
-            font=("Arial", 28, "bold"),
-            width=450,
-            height=260,
-            corner_radius=20,
-            fg_color=PRIMARY,
-            hover_color=PRIMARY_HOVER,
-            text_color=TEXT,
-            command=self._handle_project_workflow,
+        folder_icon = ctk.CTkImage(
+        light_image=Image.open(get_asset_path("icons/folder.png")),
+        dark_image=Image.open(get_asset_path("icons/folder.png")),
+        size=(48, 48),
         )
+        
+        self.folder_button = make_button(
+            master=self.content_frame,
+            text="PROJECT/RESOURCE",
+            command=self._handle_project_workflow,
+            enable_border_hover=True,
+            image=folder_icon,
+            variant="primary",
+            size="xl",)
 
-        self.project_button.grid(
+        self.folder_button.grid(
             row=0,
             column=0,
             padx=(0, 20),
-            pady=20,
+            # pady=20,
             sticky="nsew",
         )
+        
+        # self.project_button = ctk.CTkButton(
+        #     self.content_frame,
+        #     text="PROJECT / RESOURCE",
+        #     font=("Arial", 10, "bold"),
+        #     width=200,
+        #     height=200,
+        #     corner_radius=12,
+        #     fg_color=PRIMARY,
+        #     hover_color=PRIMARY_HOVER,
+        #     text_color=TEXT,
+        #     command=self._handle_project_workflow,
+        # )
+
+        # self.project_button.grid(
+        #     row=0,
+        #     column=0,
+        #     padx=(0, 20),
+        #     pady=20,
+        #     sticky="nsew",
+        # )
 
         # ──────────────────────────────────────────────────────────────────
         # DOCUMENT BUTTON
         # ──────────────────────────────────────────────────────────────────
 
-        self.document_button = ctk.CTkButton(
-            self.content_frame,
-            text="DOCUMENT",
-            font=("Arial", 28, "bold"),
-            width=450,
-            height=260,
-            corner_radius=20,
-            fg_color=SECONDARY,
-            hover_color=SECONDARY_HOVER,
-            text_color=TEXT,
-            command=self._handle_document_workflow,
+        document_icon = ctk.CTkImage(
+        light_image=Image.open(get_asset_path("icons/file.png")),
+        dark_image=Image.open(get_asset_path("icons/file.png")),
+        size=(32, 32),
         )
+
+        self.document_button = make_button(
+            master=self.content_frame,
+            text="DOCUMENTS",
+            command=self._handle_project_workflow,
+            enable_border_hover=True,
+            image=document_icon,
+            variant="primary",
+            size="xl",)
+        
+        # self.document_button = ctk.CTkButton(
+        #     self.content_frame,
+        #     text="DOCUMENT",
+        #     font=("Arial", 10, "bold"),
+        #     width=200,
+        #     height=200,
+        #     corner_radius=12,
+        #     fg_color=SECONDARY,
+        #     hover_color=SECONDARY_HOVER,
+        #     text_color=TEXT,
+        #     command=self._handle_document_workflow,
+        # )
 
         self.document_button.grid(
             row=0,
             column=1,
             padx=(20, 0),
-            pady=20,
+            # pady=20,
             sticky="nsew",
         )
 

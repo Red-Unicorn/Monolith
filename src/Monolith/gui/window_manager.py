@@ -125,7 +125,7 @@ class MonolithApp(ctk.CTk):
         self.home_page: HomePage = HomePage(master=self)
 
         # 4. Mount the layout securely into active root coordinates
-        self.home_page.pack(fill="both", expand=True, padx=40)
+        self.home_page.pack(fill="both", expand=True, padx=10, pady=10)
 
     # ── DYNAMIC DRAW GEOMETRY TRANSFORMERS ────────────────────────────────────
 

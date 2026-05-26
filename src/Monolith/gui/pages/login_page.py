@@ -169,34 +169,34 @@ class LoginPage(ctk.CTkFrame):
         Authenticate user.
         """
 
-        # self.on_login()
-        # logger.info("Login Successful")
+        self.on_login()
+        logger.info("Login Successful")
 
-        email = self.email_entry.get()
-        password = self.password_entry.get()
+        # email = self.email_entry.get()
+        # password = self.password_entry.get()
 
-        try:
+        # try:
 
-            response = self.auth_service.login(
-                email,
-                password,
-            )
+        #     response = self.auth_service.login(
+        #         email,
+        #         password,
+        #     )
 
-            if response.user:
+        #     if response.user:
 
-                self.on_login()
-                logger.info(f"Login successful:{email}")
+        #         self.on_login()
+        #         logger.info(f"Login successful:{email}")
 
-            else:
+        #     else:
 
-                self.error_label.configure(
-                    text="Authentication failed",
-                )
-                logger.error("Authentication failed")
+        #         self.error_label.configure(
+        #             text="Authentication failed",
+        #         )
+        #         logger.error("Authentication failed")
 
-        except Exception as error:
+        # except Exception as error:
 
-            self.error_label.configure(
-                text=str(error),
-            )
-            logger.error(f"An error occurred during login: {error}")
+        #     self.error_label.configure(
+        #         text=str(error),
+        #     )
+        #     logger.error(f"An error occurred during login: {error}")
