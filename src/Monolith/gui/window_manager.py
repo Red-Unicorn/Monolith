@@ -20,11 +20,18 @@ import customtkinter as ctk
 from PIL import Image
 
 # ── Local Design System Tokens and Page Modules ───────────────────────────────
-from gui.theme.layout import LOGIN_HEIGHT, LOGIN_WIDTH, APP_WIDTH, APP_HEIGHT, APP_EXTENDED_HEIGHT
+from gui.theme.layout import (
+    LOGIN_HEIGHT,
+    LOGIN_WIDTH,
+    APP_WIDTH,
+    APP_HEIGHT,
+    APP_EXTENDED_HEIGHT,
+)
 from gui.theme.colors import BACKGROUND
 from gui.widgets.tooltips import CTkToolTip
 from gui.pages.login_page import LoginPage
 from gui.pages.home_page import HomePage
+from gui.pages.folder_page import FolderPage
 from gui.pages.database_page import DatabaseMonitorWindow
 from core.utils.paths import get_asset_path
 
@@ -121,11 +128,27 @@ class MonolithApp(ctk.CTk):
         self.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
         self.center_window(APP_WIDTH, APP_HEIGHT)
 
+        # REFACTORING
+        self.page_container = ctk.CTkFrame(
+            self,
+            fg_color="transparent",
+        )
+
+        self.page_container.pack(
+            fill="both",
+            expand=True,
+        )
+
+        self.current_page = None
+
+        self.show_home_page()
+
+        ### OLD VERSION
         # 3. Instantiate the core homepage deck passing self as the host manager
-        self.home_page: HomePage = HomePage(master=self)
+        # self.home_page: HomePage = HomePage(master=self)
 
         # 4. Mount the layout securely into active root coordinates
-        self.home_page.pack(fill="both", expand=True, padx=10, pady=10)
+        # self.home_page.pack(fill="both", expand=True, padx=10, pady=10)
 
     # ── DYNAMIC DRAW GEOMETRY TRANSFORMERS ────────────────────────────────────
 
@@ -169,3 +192,56 @@ class MonolithApp(ctk.CTk):
         """
         if hasattr(self, "pages") and page_name in self.pages:
             self.pages[page_name].tkraise()
+
+    def switch_page(self, page_class, **kwargs) -> None:
+        """
+        Destroy current page and mount a new one.
+        """
+
+        if self.current_page is not None:
+            self.current_page.destroy()
+
+        self.current_page = page_class(
+            master=self.page_container,
+            **kwargs,
+        )
+
+        self.current_page.pack(
+            fill="both",
+            expand=True,
+        )
+
+    def show_home_page(self) -> None:
+        """
+        Display home page.
+        """
+
+        self.switch_page(
+            HomePage,
+            on_navigate=self.handle_home_navigation,
+        )
+
+    def handle_home_navigation(self, destination: str) -> None:
+        """
+        Handle navigation events emitted by HomePage.
+        """
+
+        if destination == "folder":
+
+            self.switch_page(
+                FolderPage,
+                on_back=self.show_home_page,
+                on_next=self.handle_project_next,
+            )
+
+        elif destination == "document":
+
+            print("[NAVIGATION] Document workflow not implemented.")
+
+    def handle_project_next(self, data: dict) -> None:
+        """
+        Receive project workflow data.
+        """
+
+        print("[PROJECT DATA]")
+        print(data)

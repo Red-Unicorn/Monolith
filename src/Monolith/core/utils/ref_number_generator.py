@@ -1,9 +1,8 @@
 """Generator for creating unique reference numbers."""
 
-
 ## Tasks
 # 1.fetch database for part of reference
-# 2.Unify the references 
+# 2.Unify the references
 # 3.Generate 4 digit hexadecimal
 # 4.Combine all parts into a single reference number string
 # 5.Ensure uniqueness by checking against existing references in the database
@@ -17,17 +16,29 @@
 
 import sqlite3
 from pathlib import Path
-
+from core.utils.logger import logger
 from core.utils.paths import find_project_root
 
 DB_PATH = find_project_root("main.py") / "core" / "database" / "references.db"
 
-print(DB_PATH)
 
 def get_reference_values(table_name: str) -> dict[str, list[str]]:
 
+    ALLOWED_TABLES = {
+        "countries",
+        "document_categories",
+        "sectors",
+        "source_types",
+        "file_types",
+    }
+
+    if table_name not in ALLOWED_TABLES:
+        logger.error("Invalid table name requested: %s", table_name)
+        raise ValueError(f"Table '{table_name}' is not an allowed reference table.")
+
     # Connect to the SQLite database and fetch code, label, and optional description
     with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
         # Get available columns
@@ -36,11 +47,7 @@ def get_reference_values(table_name: str) -> dict[str, list[str]]:
 
         has_description = "description" in columns
 
-        description_column = (
-            "description"
-            if has_description
-            else "NULL AS description"
-        )
+        description_column = "description" if has_description else "NULL AS description"
 
         query = f"""
             SELECT code, label, {description_column}
@@ -51,59 +58,56 @@ def get_reference_values(table_name: str) -> dict[str, list[str]]:
         cursor.execute(query)
         rows = cursor.fetchall()
 
-    return {
-        "codes": [row[0] for row in rows],
-        "labels": [row[1] for row in rows],
-        "descriptions": (
-            [row[2] for row in rows] if has_description else []
-        ),
-    }
+        items = {}
+
+        for row in rows:
+            items[row["label"]] = {
+                "code": row["code"],
+                "description": (row["description"] if has_description else None),
+            }
+
+        return items
+
 
 ################################
 ################################
 # Data structure
-data = {
-    "codes": ["A1", "B2"],
-    "labels": ["Apple", "Banana"],
-    "descriptions": ["Red fruit", ""]
-}
+# data = {
+#     "codes": ["A1", "B2"],
+#     "labels": ["Apple", "Banana"],
+#     "descriptions": ["Red fruit", ""],
+# }
 
-items = {}
-# Build a label → full info map
-for code, label, desc in zip(
-    data["codes"],
-    data["labels"],
-    data["descriptions"]
-):
-    items[label] = {
-        "code": code,
-        "description": desc
-    }
+# items = {}
+# # Build a label → full info map
+# for code, label, desc in zip(data["codes"], data["labels"], data["descriptions"]):
+#     items[label] = {"code": code, "description": desc}
 
-# Create ComboBox
-import customtkinter as ctk
+# # Create ComboBox
+# import customtkinter as ctk
 
-combobox = ctk.CTkComboBox(
-    master=app,
-    values=list(items.keys())
-)
-combobox.pack()
+# combobox = ctk.CTkComboBox(master=app, values=list(items.keys()))
+# combobox.pack()
 
-# Get code from selection
-def on_select(choice):
-    code = items[choice]["code"]
-    print("Selected code:", code)
 
-combobox.configure(command=on_select)
+# # Get code from selection
+# def on_select(choice):
+#     code = items[choice]["code"]
+#     print("Selected code:", code)
 
-# Attach tooltip to ComboBox selection
-def get_description():
-    choice = combobox.get()
-    return items.get(choice, {}).get("description", "")
 
-from gui.widgets.tooltips import ToolTip
+# combobox.configure(command=on_select)
 
-ToolTip(combobox, get_description)
+
+# # Attach tooltip to ComboBox selection
+# def get_description():
+#     choice = combobox.get()
+#     return items.get(choice, {}).get("description", "")
+
+
+# from gui.widgets.tooltips import ToolTip
+
+# ToolTip(combobox, get_description)
 
 # def get_ref():
 

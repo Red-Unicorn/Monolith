@@ -16,7 +16,7 @@ from gui.theme.fonts import register_application_fonts
 from core.utils.env import load_environment
 from core.utils.logger import logger
 
-# from core.utils import ref_number_generator
+from core.utils import ref_number_generator
 
 load_environment()
 
@@ -30,7 +30,8 @@ def main() -> None:
     Sets global appearance defaults, creates the root Tk window,
     hands control to the WindowManager, and enters the Tk event loop.
     """
-    # ref_number_generator.get_reference_values("countries")
+    # countries = ref_number_generator.get_reference_values("countries")
+    # print(countries)
     # quit()
     app = MonolithApp()
     app.mainloop()

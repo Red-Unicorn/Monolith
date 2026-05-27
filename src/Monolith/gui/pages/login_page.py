@@ -1,16 +1,26 @@
 """
 Enterprise login page.
 """
+
 from __future__ import annotations
 from PIL import Image
 import customtkinter as ctk
+import tkinter as tk  # <-- Imported for the BooleanVar state tracker
 
 from gui.widgets.buttons import make_button
 from core.services.auth_service import AuthService
 from gui.theme.colors import BACKGROUND
-from gui.theme.layout import INPUT_HEIGHT, INPUT_WIDTH, LOGO_HEIGHT, LOGO_WIDTH, PAD_MD, PAD_XS
+from gui.theme.layout import (
+    INPUT_HEIGHT,
+    INPUT_WIDTH,
+    LOGO_HEIGHT,
+    LOGO_WIDTH,
+    PAD_MD,
+    PAD_XS,
+)
 from core.utils.paths import get_asset_path
 from core.utils.logger import logger
+
 
 class LoginPage(ctk.CTkFrame):
 
@@ -80,7 +90,7 @@ class LoginPage(ctk.CTkFrame):
 
         except Exception as error:
 
-            print(f"Error loading logo: {error}")
+            logger.debug(f"Error loading logo: {error}")
 
         self.title_label = ctk.CTkLabel(
             self.container,
@@ -97,6 +107,16 @@ class LoginPage(ctk.CTkFrame):
     # ──────────────────────────────────────────────────────────────
 
     def _build_form(self):
+
+        self.error_label = ctk.CTkLabel(
+            self.container,
+            text="",
+            text_color="red",
+        )
+
+        self.error_label.pack(
+            pady=(10, 0),
+        )
 
         self.email_entry = ctk.CTkEntry(
             self.container,
@@ -123,16 +143,33 @@ class LoginPage(ctk.CTkFrame):
             padx=40,
         )
 
-        self.error_label = ctk.CTkLabel(
+        # Horizontal row matching the entry fields' width to align the checkbox nicely
+        # self.utility_frame = ctk.CTkFrame(
+        #     self.container,
+        #     fg_color="transparent",
+        #     width=INPUT_WIDTH,
+        # )
+        # self.utility_frame.pack(fill="x", padx=40)
+        # self.utility_frame.pack_propagate(False)  # Strict layout matching dimensions
+
+        # Track checkbox state
+        self.remember_me_var = tk.BooleanVar(value=False)
+
+        # Styled Checkbox matching the slate dark/coral web mockup theme
+        self.remember_checkbox = ctk.CTkCheckBox(
             self.container,
-            text="",
-            text_color="red",
+            text="Remember me",
+            variable=self.remember_me_var,
+            font=("Inter", 13),
+            text_color="#94A3B8",  # Slate gray text
+            fg_color="#EF4444",  # Accent fill color when checked
+            hover_color="#DC2626",  # Deep red hover boundary state
+            border_color="#334155",  # Subtle borders matching input text boxes
+            corner_radius=2,
+            checkbox_width=16,
+            checkbox_height=16,
         )
-
-        self.error_label.pack(
-            pady=(10, 0),
-        )
-
+        self.remember_checkbox.pack(padx=40, pady=(0, 40), anchor="w")
 
     def _build_login_button(self):
 
@@ -142,7 +179,8 @@ class LoginPage(ctk.CTkFrame):
             command=self.login,
             enable_border_hover=True,
             variant="secondary",
-            size="md",)
+            size="md",
+        )
 
         self.login_button.pack(
             pady=(20, 60),
@@ -158,7 +196,6 @@ class LoginPage(ctk.CTkFrame):
             "<Return>",
             lambda event: self.login(),
         )
-
 
     # ──────────────────────────────────────────────────────────────
     # ACTIONS

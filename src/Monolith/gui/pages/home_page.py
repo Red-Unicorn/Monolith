@@ -11,6 +11,7 @@ VERSION:       7.0.0
 """
 
 from __future__ import annotations
+
 # from typing import Any, Optional
 import customtkinter as ctk
 from PIL import Image
@@ -19,11 +20,14 @@ from PIL import Image
 from gui.widgets.buttons import make_button
 from core.utils.paths import get_asset_path
 from gui.theme.colors import BACKGROUND, TEXT_MUTED, TEXT
+from core.utils.logger import logger
+
 # from gui.theme.layout import APP_WIDTH, APP_HEIGHT
 
 # ──────────────────────────────────────────────────────────────────────────────
 # HOME PAGE
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 class HomePage(ctk.CTkFrame):
     """
@@ -77,7 +81,7 @@ class HomePage(ctk.CTkFrame):
             font=("Oswald", 18, "bold"),
             text_color=TEXT_MUTED,
         )
-        self.step_label.pack(anchor="w")#,pady=(0, 20))
+        self.step_label.pack(anchor="w")  # ,pady=(0, 20))
 
         self.title_label = ctk.CTkLabel(
             self.header_frame,
@@ -85,7 +89,7 @@ class HomePage(ctk.CTkFrame):
             font=("PT Sans", 12, "bold"),
             text_color=TEXT,
         )
-        self.title_label.pack(anchor="w")#, pady=(10, 0))
+        self.title_label.pack(anchor="w")  # , pady=(10, 0))
 
         # self.subtitle_label = ctk.CTkLabel(
         #     self.header_frame,
@@ -122,19 +126,20 @@ class HomePage(ctk.CTkFrame):
         # ──────────────────────────────────────────────────────────────────
 
         folder_icon = ctk.CTkImage(
-        light_image=Image.open(get_asset_path("icons/folder.png")),
-        dark_image=Image.open(get_asset_path("icons/folder.png")),
-        size=(64, 64),
+            light_image=Image.open(get_asset_path("icons/folder.png")),
+            dark_image=Image.open(get_asset_path("icons/folder.png")),
+            size=(64, 64),
         )
-        
+
         self.folder_button = make_button(
             master=self.content_frame,
             text="PROJECT/RESOURCE",
-            command=self._handle_project_workflow,
+            command=self._handle_folder_workflow,
             enable_border_hover=True,
             image=folder_icon,
             variant="primary",
-            size="lg",)
+            size="lg",
+        )
 
         self.folder_button.grid(
             row=0,
@@ -149,19 +154,20 @@ class HomePage(ctk.CTkFrame):
         # ──────────────────────────────────────────────────────────────────
 
         document_icon = ctk.CTkImage(
-        light_image=Image.open(get_asset_path("icons/file.png")),
-        dark_image=Image.open(get_asset_path("icons/file.png")),
-        size=(64, 64),
+            light_image=Image.open(get_asset_path("icons/file.png")),
+            dark_image=Image.open(get_asset_path("icons/file.png")),
+            size=(64, 64),
         )
 
         self.document_button = make_button(
             master=self.content_frame,
             text="DOCUMENTS",
-            command=self._handle_project_workflow,
+            command=self._handle_document_workflow,
             enable_border_hover=True,
             image=document_icon,
             variant="primary",
-            size="lg",)
+            size="lg",
+        )
 
         self.document_button.grid(
             row=0,
@@ -175,20 +181,20 @@ class HomePage(ctk.CTkFrame):
     # ACTIONS
     # ──────────────────────────────────────────────────────────────────────
 
-    def _handle_project_workflow(self) -> None:
+    def _handle_folder_workflow(self) -> None:
         """
         Navigate to project/resource workflow.
         """
-        print("[NAVIGATION] Project workflow selected.")
+        logger.debug("[NAVIGATION] Folder workflow selected.")
 
         if self.on_navigate:
-            self.on_navigate("project")
+            self.on_navigate("folder")
 
     def _handle_document_workflow(self) -> None:
         """
         Navigate to document workflow.
         """
-        print("[NAVIGATION] Document workflow selected.")
+        logger.debug("[NAVIGATION] Document workflow selected.")
 
         if self.on_navigate:
             self.on_navigate("document")

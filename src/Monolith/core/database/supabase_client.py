@@ -9,9 +9,6 @@ from core.utils.logger import logger
 from config.settings import SUPABASE_KEY
 from config.settings import SUPABASE_URL
 
-print(SUPABASE_KEY)
-print(SUPABASE_URL)
-
 
 class SupabaseConnection:
     """
