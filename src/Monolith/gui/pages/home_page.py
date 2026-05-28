@@ -19,7 +19,7 @@ from PIL import Image
 # ── Design System Injections ──────────────────────────────────────────────────
 from gui.widgets.buttons import make_button
 from core.utils.paths import get_asset_path
-from gui.theme.colors import BACKGROUND, TEXT_MUTED, TEXT
+from gui.theme.colors import BACKGROUND, TEXT_MUTED, TEXT, CARD_BG
 from core.utils.logger import logger
 
 # from gui.theme.layout import APP_WIDTH, APP_HEIGHT
@@ -45,7 +45,7 @@ class HomePage(ctk.CTkFrame):
     """
 
     def __init__(self, master, on_navigate=None):
-        super().__init__(master, fg_color=BACKGROUND)
+        super().__init__(master, fg_color=CARD_BG)
 
         self.on_navigate = on_navigate
 
@@ -146,7 +146,7 @@ class HomePage(ctk.CTkFrame):
             column=0,
             padx=(0, 20),
             # pady=20,
-            sticky="nsew",
+            sticky="ew",
         )
 
         # ──────────────────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ class HomePage(ctk.CTkFrame):
             column=1,
             padx=(20, 0),
             # pady=20,
-            sticky="nsew",
+            sticky="ew",
         )
 
     # ──────────────────────────────────────────────────────────────────────

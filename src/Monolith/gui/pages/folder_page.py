@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import customtkinter as ctk
 
-from gui.theme.colors import BACKGROUND
+from gui.theme.colors import BACKGROUND, CARD_BG
 
 from core.utils.ref_number_generator import get_reference_values
 from core.utils.misc import (
@@ -24,7 +24,7 @@ from gui.widgets.buttons import make_button
 # DESIGN TOKENS
 # ─────────────────────────────────────────────────────────────
 
-CARD_BG = "#111827"
+# CARD_BG = "#111827"
 
 INPUT_BG = "#1E293B"
 

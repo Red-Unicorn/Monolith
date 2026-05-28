@@ -10,6 +10,7 @@ License : Proprietary – All rights reserved
 from __future__ import annotations
 
 BACKGROUND = "#192738"  # "#010C16"
+CARD_BG = "#111827"
 BACKGROUND_LIGHT = "#072038"
 INPUT_BACKGROUND = "#303e4e"
 BUTTON_PRIMARY = "#1B4F72"
