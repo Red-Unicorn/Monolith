@@ -6,10 +6,11 @@ from __future__ import annotations
 from PIL import Image
 import customtkinter as ctk
 import tkinter as tk  # <-- Imported for the BooleanVar state tracker
+from datetime import datetime
 
 from gui.widgets.buttons import make_button
 from core.services.auth_service import AuthService
-from gui.theme.colors import BACKGROUND
+from gui.theme.colors import BACKGROUND, INPUT
 from gui.theme.layout import (
     INPUT_HEIGHT,
     INPUT_WIDTH,
@@ -20,6 +21,16 @@ from gui.theme.layout import (
 )
 from core.utils.paths import get_asset_path
 from core.utils.logger import logger
+from core.services.auth_storage import (
+    save_secure_token,
+    save_local_username,
+    load_local_username,
+    clear_local_username,
+    clear_secure_token,
+    save_password,
+    load_password,
+)
+from core.utils.misc import tint_icon
 
 
 class LoginPage(ctk.CTkFrame):
@@ -31,11 +42,24 @@ class LoginPage(ctk.CTkFrame):
         self.on_login = on_login
         self.auth_service = AuthService()
 
+        # Loading images
+        self.eye_open_img = ctk.CTkImage(
+            light_image=Image.open(get_asset_path("icons/eye-open-w.png")),
+            dark_image=Image.open(get_asset_path("icons/eye-open-w.png")),
+            size=(25, 25),
+        )
+
+        self.eye_closed_img = ctk.CTkImage(
+            light_image=Image.open(get_asset_path("icons/eye-closed-w.png")),
+            dark_image=Image.open(get_asset_path("icons/eye-closed-w.png")),
+            size=(25, 25),
+        )
         # Build UI
         self._build_layout()
         self._build_logo()
         self._build_form()
         self._build_login_button()
+        self._build_footer()
         self._bind_events()
 
     # ──────────────────────────────────────────────────────────────
@@ -99,7 +123,18 @@ class LoginPage(ctk.CTkFrame):
         )
 
         self.title_label.pack(
-            pady=(PAD_XS, 120),
+            pady=(PAD_XS, 10),
+        )
+        self.subtitle_label = ctk.CTkLabel(
+            self.container,
+            text="Please sign in to continue",
+            font=("Inter", 14),
+            text_color="#94A3B8",
+            fg_color="transparent",
+        )
+
+        self.subtitle_label.pack(
+            pady=(0, 40),
         )
 
     # ──────────────────────────────────────────────────────────────
@@ -118,30 +153,119 @@ class LoginPage(ctk.CTkFrame):
             pady=(10, 0),
         )
 
+        self.email_label = ctk.CTkLabel(
+            self.container,
+            text="Email",
+            font=("Inter", 13),
+            text_color="#E2E8F0",
+            fg_color="transparent",
+        )
+
+        self.email_label.pack(
+            anchor="w",
+            padx=40,
+        )
         self.email_entry = ctk.CTkEntry(
             self.container,
             placeholder_text="Email",
             width=INPUT_WIDTH,
             height=INPUT_HEIGHT,
+            fg_color=INPUT,  # "#303e4e",  # "#1E293B",
+            font=("Inter", 14),
+            border_width=0,
         )
 
         self.email_entry.pack(
-            pady=10,
+            pady=(0, 10),
             padx=40,
         )
 
-        self.password_entry = ctk.CTkEntry(
+        # PASSWORD LABEL
+        self.password_label = ctk.CTkLabel(
             self.container,
-            placeholder_text="Password",
-            show="*",
-            width=INPUT_WIDTH,
-            height=INPUT_HEIGHT,
+            text="Password",
+            font=("Inter", 13),
+            text_color="#E2E8F0",
+            fg_color="transparent",
         )
 
-        self.password_entry.pack(
-            pady=10,
+        self.password_label.pack(
+            anchor="w",
             padx=40,
+            pady=(0, 0),
         )
+
+        # PASSWORD FRAME
+        self.password_frame = ctk.CTkFrame(
+            self.container,
+            fg_color=INPUT,  # "#303e4e",
+            corner_radius=6,
+        )
+
+        self.password_frame.pack(
+            padx=40,
+            pady=(0, 10),
+        )
+
+        # PASSWORD ENTRY
+        self.password_entry = ctk.CTkEntry(
+            self.password_frame,
+            placeholder_text="Password",
+            show="•",
+            width=INPUT_WIDTH - 60,
+            height=INPUT_HEIGHT,
+            font=("Inter", 13),
+            border_width=0,
+            fg_color="transparent",
+        )
+
+        self.password_entry.pack(side="left", padx=(10, 0))
+
+        # PASSWORD VISIBILITY STATE
+        self.password_visible = False
+
+        # EYE BUTTON
+        self.show_password_button = ctk.CTkButton(
+            self.password_frame,
+            text="",
+            image=self.eye_open_img,
+            width=30,
+            height=30,
+            fg_color="transparent",
+            hover_color="#334155",
+            command=self.toggle_password_visibility,
+        )
+
+        self.show_password_button.pack(
+            side="right",
+            padx=5,
+        )
+        # self.password_label = ctk.CTkLabel(
+        #     self.container,
+        #     text="Password",
+        #     font=("Inter", 13),
+        #     text_color="#E2E8F0",
+        #     fg_color="transparent",
+        # )
+
+        # self.password_label.pack(
+        #     anchor="w",
+        #     padx=40,
+        #     # pady=(10, 5),
+        # )
+        # self.password_entry = ctk.CTkEntry(
+        #     self.container,
+        #     placeholder_text="Password",
+        #     show="•",
+        #     width=INPUT_WIDTH,
+        #     height=INPUT_HEIGHT,
+        #     font=("Inter", 14),
+        # )
+
+        # self.password_entry.pack(
+        #     pady=(0, 10),
+        #     padx=40,
+        # )
 
         # Horizontal row matching the entry fields' width to align the checkbox nicely
         # self.utility_frame = ctk.CTkFrame(
@@ -169,13 +293,46 @@ class LoginPage(ctk.CTkFrame):
             checkbox_width=16,
             checkbox_height=16,
         )
-        self.remember_checkbox.pack(padx=40, pady=(0, 40), anchor="w")
+        self.remember_checkbox.pack(padx=40, pady=(0, 10), anchor="w")
+
+        # FOR AUTO-LOGIN
+        # saved_email = load_local_username()
+
+        # if saved_email:
+
+        #     self.email_entry.insert(
+        #         0,
+        #         saved_email,
+        #     )
+
+        #     self.remember_me_var.set(True)
+
+        # FOR AUTO-FILING
+        saved_email = load_local_username()
+
+        if saved_email:
+
+            self.email_entry.insert(
+                0,
+                saved_email,
+            )
+
+            saved_password = load_password(saved_email)
+
+            if saved_password:
+
+                self.password_entry.insert(
+                    0,
+                    saved_password,
+                )
+
+            self.remember_me_var.set(True)
 
     def _build_login_button(self):
 
         self.login_button = make_button(
             master=self.container,
-            text="Login",
+            text="Sign in",
             command=self.login,
             enable_border_hover=True,
             variant="secondary",
@@ -183,7 +340,7 @@ class LoginPage(ctk.CTkFrame):
         )
 
         self.login_button.pack(
-            pady=(20, 60),
+            pady=(0, 60),
         )
 
     # ──────────────────────────────────────────────────────────────
@@ -201,39 +358,92 @@ class LoginPage(ctk.CTkFrame):
     # ACTIONS
     # ──────────────────────────────────────────────────────────────
 
+    def _build_footer(self):
+
+        self.footer_label = ctk.CTkLabel(
+            self,
+            text=f"© MONOLITH — {datetime.now().year}",
+            font=("Inter Light", 10),
+            # text_color=TEXT_MUTED,
+            fg_color=BACKGROUND,
+        )
+
+        self.footer_label.place(
+            relx=0.5,
+            rely=0.98,
+            anchor="s",
+        )
+
+    def toggle_password_visibility(self):
+
+        self.password_visible = not self.password_visible
+
+        if self.password_visible:
+
+            self.password_entry.configure(show="")
+            self.show_password_button.configure(image=self.eye_closed_img)
+
+        else:
+
+            self.password_entry.configure(show="•")
+            self.show_password_button.configure(image=self.eye_open_img)
+
     def login(self):
         """
         Authenticate user.
         """
 
-        self.on_login()
-        logger.info("Login Successful")
+        email = self.email_entry.get().strip()
+        password = self.password_entry.get()
+        remember_checked = self.remember_me_var.get()
 
-        # email = self.email_entry.get()
-        # password = self.password_entry.get()
+        try:
 
-        # try:
+            response = self.auth_service.login(
+                email,
+                password,
+            )
 
-        #     response = self.auth_service.login(
-        #         email,
-        #         password,
-        #     )
+            if response.user:
 
-        #     if response.user:
+                logger.info(f"Login successful: {email}")
 
-        #         self.on_login()
-        #         logger.info(f"Login successful:{email}")
+                session = response.session
 
-        #     else:
+                refresh_token = None
 
-        #         self.error_label.configure(
-        #             text="Authentication failed",
-        #         )
-        #         logger.error("Authentication failed")
+                if session:
 
-        # except Exception as error:
+                    refresh_token = session.refresh_token
+                    if remember_checked:
 
-        #     self.error_label.configure(
-        #         text=str(error),
-        #     )
-        #     logger.error(f"An error occurred during login: {error}")
+                        save_local_username(email)
+
+                        save_password(
+                            email,
+                            password,
+                        )
+
+                    else:
+
+                        clear_local_username()
+                        clear_secure_token(email)
+
+                # ENTER APPLICATION
+                self.on_login()
+
+            else:
+
+                self.error_label.configure(
+                    text="Authentication failed",
+                )
+
+                logger.error("Authentication failed")
+
+        except Exception as error:
+
+            self.error_label.configure(
+                text=str(error),
+            )
+
+            logger.error(f"An error occurred during login: {error}")

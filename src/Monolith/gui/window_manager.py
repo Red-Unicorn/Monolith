@@ -18,6 +18,9 @@ from typing import Any, Optional
 from tkinter import Menu  # Import traditional Tkinter Menu tools
 import customtkinter as ctk
 from PIL import Image
+import keyring
+import os
+import json
 
 # ── Local Design System Tokens and Page Modules ───────────────────────────────
 from gui.theme.layout import (
@@ -34,6 +37,7 @@ from gui.pages.home_page import HomePage
 from gui.pages.folder_page import FolderPage
 from gui.pages.database_page import DatabaseMonitorWindow
 from core.utils.paths import get_asset_path
+from core.services.auth_service import AuthService
 
 __all__ = ["MonolithApp"]
 
@@ -58,7 +62,19 @@ class MonolithApp(ctk.CTk):
 
         # Draw baseline configuration dimensions to hold login forms safely
         self.center_window(LOGIN_WIDTH, LOGIN_HEIGHT)
-        self.after(100, self.start_login)
+
+        ## THIS IS FOR AUTO-LOGIN
+        # self.after(
+        #     100,
+        #     self._coordinate_app_entry,
+        # )
+
+        ## THIS IS FOR AUTO-FILLING
+        ###########################
+        self.after(
+            100,
+            self.start_login,
+        )
 
         # ── SYSTEM NATIVE MENU BAR CONFIGURATIONS ─────────────────────────────
         # Create the master menu bar container linked to the root window layer
@@ -74,6 +90,55 @@ class MonolithApp(ctk.CTk):
 
         # Cascade file bundle onto the top host system application display tree
         self.menubar.add_cascade(label="File", menu=self.file_menu)
+
+    def _coordinate_app_entry(self) -> None:
+        """
+        Attempt silent login using saved credentials.
+        """
+
+        from core.services.auth_storage import (
+            load_local_username,
+            get_secure_token,
+            clear_local_username,
+            clear_secure_token,
+        )
+
+        saved_email = load_local_username()
+
+        # No saved email -> show login page
+        if not saved_email:
+
+            self.start_login()
+            return
+
+        secure_token = get_secure_token(saved_email)
+
+        # No token found -> clear broken state and show login
+        if not secure_token:
+
+            clear_local_username()
+
+            self.start_login()
+            return
+
+        auth_service = AuthService()
+
+        is_valid = auth_service.validate_token(secure_token)
+
+        if is_valid:
+
+            print("[AUTH] Silent login successful")
+
+            self.start_main_app()
+
+        else:
+
+            print("[AUTH] Stored session expired")
+
+            clear_secure_token(saved_email)
+            clear_local_username()
+
+            self.start_login()
 
     # ── DROPDOWN ACTION MENU COMMAND TRACKS ───────────────────────────────────
 

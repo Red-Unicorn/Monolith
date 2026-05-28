@@ -7,10 +7,8 @@ from supabase import Client
 from core.database.supabase_client import SupabaseConnection
 from core.utils.logger import logger
 
+
 class AuthService:
-    """
-    Handles user authentication and session management.
-    """
 
     def __init__(self) -> None:
         self.client: Client = SupabaseConnection.get_client()
@@ -20,16 +18,6 @@ class AuthService:
         email: str,
         password: str,
     ) -> dict:
-        """
-        Authenticate user.
-
-        Args:
-            email: User email.
-            password: User password.
-
-        Returns:
-            dict: Authentication response.
-        """
 
         response = self.client.auth.sign_in_with_password(
             {
@@ -41,15 +29,29 @@ class AuthService:
         return response
 
     def logout(self) -> None:
-        """
-        Logout current user.
-        """
 
         self.client.auth.sign_out()
 
     def get_current_user(self):
-        """
-        Return authenticated user.
-        """
 
         return self.client.auth.get_user()
+
+    def validate_token(
+        self,
+        refresh_token: str,
+    ) -> bool:
+        """
+        Validate stored refresh token.
+        """
+
+        try:
+
+            response = self.client.auth.refresh_session(refresh_token=refresh_token)
+
+            return response.session is not None
+
+        except Exception as error:
+
+            logger.error(f"Token validation failed: {error}")
+
+            return False

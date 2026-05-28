@@ -14,8 +14,7 @@ from __future__ import annotations
 # __author__ = "Red Unicorn (Intl') Holding Group"
 
 
-
-BUTTON_SIZES ={
+BUTTON_SIZES = {
     "sm": (100, 30),
     "md": (120, 40),
     "lg": (200, 160),
@@ -57,7 +56,7 @@ TOPBAR_HEIGHT = 70
 CARD_RADIUS = 18
 BUTTON_HEIGHT = 42
 BUTTON_HOVER_BORDER = 2
-INPUT_HEIGHT = 38
+INPUT_HEIGHT = 40
 INPUT_WIDTH = 320
 TEXTBOX_HEIGHT = 120
 BUTTON_WIDTH = 120
