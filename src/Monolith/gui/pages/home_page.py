@@ -72,7 +72,7 @@ class HomePage(ctk.CTkFrame):
             column=0,
             sticky="nsew",
             padx=40,
-            pady=(0, 0),
+            pady=(20, 0),
         )
 
         self.step_label = ctk.CTkLabel(

@@ -1,255 +1,531 @@
 """
-Folder workflow page example.
+Enterprise-style project workflow form page.
 """
 
 from __future__ import annotations
 
 import customtkinter as ctk
-from gui.theme.colors import BACKGROUND, TEXT_MUTED, TEXT
-from gui.theme.layout import INPUT_HEIGHT, INPUT_WIDTH
-from gui.widgets.search_combobox import SearchComboBox
-from core.utils.logger import logger
+
+from gui.theme.colors import BACKGROUND
+
 from core.utils.ref_number_generator import get_reference_values
+from core.utils.misc import (
+    country_to_iso2,
+    country_to_iso3,
+)
+
+from gui.widgets.search_combobox import SearchComboBox
+from gui.widgets.red_asterix import make_required_label
+from gui.widgets.stepper import Stepper
+from gui.widgets.image_provider import load_image
+from gui.widgets.buttons import make_button
+
+# ─────────────────────────────────────────────────────────────
+# DESIGN TOKENS
+# ─────────────────────────────────────────────────────────────
+
+CARD_BG = "#111827"
+
+INPUT_BG = "#1E293B"
+
+TEXT = "#E5E7EB"
+TEXT_MUTED = "#94A3B8"
+
+ACCENT = "#EF4444"
+
+BORDER = "#334155"
+
+INPUT_HEIGHT = 44
 
 
 class FolderPage(ctk.CTkFrame):
 
-    def __init__(self, master, on_back=None, on_next=None, on_navigate=None):
-        # self.country_values = get_reference_values("countries")
-        # self.sector_values = get_reference_values("sectors")
-        # self.source_type_values = get_reference_values("source_types")
+    def __init__(
+        self,
+        master,
+        on_back=None,
+        on_next=None,
+    ):
 
-        self.country_values = list(get_reference_values("countries").keys())
-        self.sector_values = list(get_reference_values("sectors").keys())
-        self.source_type_values = list(get_reference_values("source_types").keys())
+        super().__init__(
+            master,
+            fg_color=BACKGROUND,
+        )
 
-        super().__init__(master, fg_color=BACKGROUND)
-
-        self.on_navigate = on_navigate
+        self.pack(
+            fill="both",
+            expand=True,
+        )
 
         self.on_back = on_back
         self.on_next = on_next
 
-        self.pack(fill="both", expand=True)
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=5)
+        # ─────────────────────────────────────────
+        # DATA
+        # ─────────────────────────────────────────
+
+        self.country_values = list(get_reference_values("countries").keys())
+
+        self.sector_values = list(get_reference_values("sectors").keys())
+
+        # ─────────────────────────────────────────
+        # GRID
+        # ─────────────────────────────────────────
+
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        # ──────────────────────────────────────────────────────────────────
-        # HEADER / STEP INDICATOR
-        # ──────────────────────────────────────────────────────────────────
+        # BUILD UI
+        self._build_card()
 
-        self.header_frame = ctk.CTkFrame(
+    # ─────────────────────────────────────────────────────────────
+    # IMAGE PROVIDERS
+    # ─────────────────────────────────────────────────────────────
+
+    def country_image_provider(self, country: str):
+        """
+        Generic provider used by SearchComboBox.
+        Returns a CTkImage or None.
+        """
+
+        if not country:
+            return None
+
+        iso2 = country_to_iso2(country)
+
+        # IMPORTANT FIX:
+        # country_to_iso2() can return ""
+        # which caused:
+        # flags/png/.png
+        if not iso2:
+            return None
+
+        try:
+
+            return load_image(
+                f"flags/png/{iso2.lower()}.png",
+                size=(20, 14),
+            )
+
+        except Exception:
+            return None
+
+    # ─────────────────────────────────────────────────────────────
+    # CARD
+    # ─────────────────────────────────────────────────────────────
+
+    def _build_card(self):
+
+        self.card = ctk.CTkFrame(
             self,
-            fg_color="transparent",
+            fg_color=CARD_BG,
+            corner_radius=0,
         )
-        self.header_frame.grid(
+
+        self.card.grid(
             row=0,
             column=0,
             sticky="nsew",
+        )
+
+        self.card.grid_columnconfigure(0, weight=1)
+        # self.card.grid_rowconfigure(1, weight=0)
+
+        self._build_header()
+        self._build_form()
+        self._build_footer()
+
+    # ─────────────────────────────────────────────────────────────
+    # HEADER
+    # ─────────────────────────────────────────────────────────────
+
+    def _build_header(self):
+
+        self.header_frame = ctk.CTkFrame(
+            self.card,
+            fg_color="transparent",
+        )
+
+        self.header_frame.grid(
+            row=0,
+            column=0,
+            sticky="ew",
             padx=40,
-            pady=(0, 0),
+            pady=(35, 40),
         )
 
-        self.step_label = ctk.CTkLabel(
+        self.stepper = Stepper(
             self.header_frame,
-            text="STEP 2 OF 3",
-            font=("Oswald", 18, "bold"),
-            text_color=TEXT_MUTED,
+            steps=[
+                "Details",
+                "Review",
+                "Generated",
+            ],
+            current_step=1,
         )
-        self.step_label.pack(anchor="w")  # ,pady=(0, 20))
 
-        # self.title_label = ctk.CTkLabel(
-        #     self.header_frame,
-        #     text="Create Reference Number for:",
-        #     font=("PT Sans", 12, "bold"),
-        #     text_color=TEXT,
-        # )
-        # self.title_label.pack(anchor="w")  # , pady=(10, 0))
-        # ──────────────────────────────────────────────────────────────────
-        # HEADER
-        # ──────────────────────────────────────────────────────────────────
+        self.stepper.pack(
+            fill="x",
+        )
 
-        # title = ctk.CTkLabel(
-        #     self,
-        #     text="STEP 2 OF 3",
-        #     font=("Arial", 18, "bold"),
-        #     text_color="#94A3B8",
-        # )
-        # title.pack(anchor="w", padx=40, pady=(30, 10))
+    # ─────────────────────────────────────────────────────────────
+    # FORM
+    # ─────────────────────────────────────────────────────────────
 
-        # subtitle = ctk.CTkLabel(
-        #     self,
-        #     text="Project Information",
-        #     font=("Arial", 34, "bold"),
-        #     text_color="white",
-        # )
-        # subtitle.pack(anchor="w", padx=40)
+    def _build_form(self):
 
-        # ──────────────────────────────────────────────────────────────────
-        # FORM AREA
-        # ──────────────────────────────────────────────────────────────────
-
-        self.form_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.form_frame = ctk.CTkFrame(
+            self.card,
+            fg_color="transparent",
+        )
 
         self.form_frame.grid(
             row=1,
             column=0,
             sticky="nsew",
             padx=40,
-            pady=30,
         )
 
-        # PROJECT NAME
-        # This is an entry place to write the project name
-        # project_name = ctk.CTkLabel(
-        #     self.form_frame,
-        #     text="Project Name",
-        #     font=("Arial", 20),
-        # )
+        self.form_frame.grid_columnconfigure(0, weight=2)
+        self.form_frame.grid_columnconfigure(1, weight=1)
 
-        # project_name.pack(
-        #     anchor="w",
-        #     padx=30,
-        #     pady=(30, 10),
-        # )
+        # ─────────────────────────────────────────
+        # COUNTRY
+        # ─────────────────────────────────────────
 
-        # self.project_entry = ctk.CTkEntry(
-        #     self.form_frame,
-        #     placeholder_text="Project Name",
-        #     width=INPUT_WIDTH,
-        #     height=INPUT_HEIGHT,
-        # )
-
-        # self.project_entry.pack(
-        #     pady=10,
-        #     padx=40,
-        # )
-
-        # COUNTRY BOX
-        country_label = ctk.CTkLabel(
+        country_label = make_required_label(
             self.form_frame,
-            text="Country",
-            font=("Arial", 20),
+            "Country of Origin",
         )
 
-        country_label.pack(
-            anchor="w",
-            padx=30,
-            pady=(30, 10),
+        country_label.grid(
+            row=0,
+            column=0,
+            sticky="w",
+            # pady=(0, 8),
         )
 
-        self.country_widget = SearchComboBox(
+        self.country_combo = SearchComboBox(
             self.form_frame,
             values=self.country_values,
-            command=lambda code: self.verify_country_output(code),
+            # GENERIC IMAGE SYSTEM
+            image_provider=self.country_image_provider,
+            # WHAT .get() RETURNS
+            value_mapper=lambda country: country_to_iso3(country),
+            placeholder_text="Type any country...",
+            height=INPUT_HEIGHT,
+            fg_color=INPUT_BG,
+            corner_radius=8,
+            command=self.verify_country_output,
         )
 
-        self.country_widget.pack(
-            fill="x",
-            padx=30,
+        self.country_combo.grid(
+            row=1,
+            column=0,
+            sticky="ew",
+            padx=(0, 18),
+            pady=(0, 10),
+        )
+
+        # ─────────────────────────────────────────
+        # SECTOR
+        # ─────────────────────────────────────────
+
+        sector_label = make_required_label(
+            self.form_frame,
+            "Sector",
+        )
+
+        sector_label.grid(
+            row=0,
+            column=1,
+            sticky="w",
+            # pady=(0, 8),
+        )
+
+        self.sector_combo = SearchComboBox(
+            self.form_frame,
+            values=self.sector_values,
+            height=INPUT_HEIGHT,
+            placeholder_text="Select Project's sector",
+            # OPTIONAL:
+            # no images for sectors for now
+            image_provider=None,
+        )
+
+        self.sector_combo.grid(
+            row=1,
+            column=1,
+            sticky="ew",
+            pady=(0, 10),
+        )
+
+        # ─────────────────────────────────────────
+        # PROJECT NAME
+        # ─────────────────────────────────────────
+
+        project_label = make_required_label(
+            self.form_frame,
+            "Project Name",
+        )
+
+        project_label.grid(
+            row=2,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            # pady=(0, 8),
+        )
+
+        self.project_entry = ctk.CTkEntry(
+            self.form_frame,
+            height=INPUT_HEIGHT,
+            fg_color=INPUT_BG,
+            border_color=BORDER,
+            border_width=0,
+            corner_radius=8,
+            font=("Inter", 14),
+            placeholder_text="Digital Banking Platform",
+            placeholder_text_color="#94A3B8",  # "#9CA3AF",
+        )
+
+        self.project_entry.grid(
+            row=3,
+            column=0,
+            columnspan=2,
+            sticky="ew",
+            pady=(0, 10),
+        )
+
+        # ─────────────────────────────────────────
+        # DESCRIPTION
+        # ─────────────────────────────────────────
+
+        self._create_label(
+            text="Description (max 200 chars.)",
+            row=4,
+            column=0,
+            columnspan=2,
+            # pady=(10, 0),
+        )
+
+        self.description_container = ctk.CTkFrame(
+            self.form_frame,
+            fg_color=INPUT_BG,
+            border_color=BORDER,
+            border_width=0,
+            corner_radius=8,
+            height=100,
+        )
+
+        self.description_container.grid(
+            row=5,
+            column=0,
+            columnspan=2,
+            sticky="ew",
             pady=(0, 20),
         )
-        # self.country_search = ctk.CTkEntry(
-        #     self.form_frame,
-        #     placeholder_text="Search country...",
+
+        self.description_container.grid_columnconfigure(0, weight=1)
+        self.description_container.grid_rowconfigure(0, weight=0)
+
+        self.description_box = ctk.CTkTextbox(
+            self.description_container,
+            fg_color="transparent",
+            border_width=0,
+            activate_scrollbars=False,
+            font=("Inter", 12),
+            text_color=TEXT,
+            height=80,
+        )
+
+        self.description_box.grid(
+            row=0,
+            column=0,
+            sticky="ew",
+            padx=12,
+            pady=(10, 10),
+        )
+
+        self.counter_label = ctk.CTkLabel(
+            self.description_container,
+            text="0 / 200",
+            text_color=TEXT_MUTED,
+            font=("Inter", 10),
+        )
+
+        self.counter_label.place(
+            relx=0.985,
+            rely=0.985,
+            anchor="se",
+        )
+
+        self.description_box.bind(
+            "<KeyRelease>",
+            self._update_counter,
+        )
+
+    # ─────────────────────────────────────────────────────────────
+    # LABEL HELPER
+    # ─────────────────────────────────────────────────────────────
+
+    def _create_label(
+        self,
+        text,
+        row,
+        column,
+        columnspan=1,
+    ):
+
+        label = ctk.CTkLabel(
+            self.form_frame,
+            text=text,
+            text_color=TEXT,
+            font=("Inter", 12),
+        )
+
+        label.grid(
+            row=row,
+            column=column,
+            columnspan=columnspan,
+            sticky="w",
+            pady=(0, 0),
+        )
+
+    # ─────────────────────────────────────────────────────────────
+    # FOOTER
+    # ─────────────────────────────────────────────────────────────
+
+    def _build_footer(self):
+
+        self.footer = ctk.CTkFrame(
+            self.card,
+            fg_color="transparent",
+        )
+
+        self.footer.grid(
+            row=2,
+            column=0,
+            sticky="ew",
+            padx=40,
+            pady=(5, 35),
+        )
+
+        self.footer.grid_columnconfigure(0, weight=1)
+
+        # CANCEL
+        self.cancel_button = make_button(
+            master=self.footer,
+            text="Previous",
+            command=self._back,
+            enable_border_hover=True,
+            variant="primary",
+            size="md",
+        )
+
+        # self.cancel_button.pack(
+        #     pady=(0, 60),
         # )
-
-        # self.country_search.pack(fill="x", padx=30)
-
-        # self.country_combobox = ctk.CTkComboBox(
-        #     self.form_frame,
-        #     values=self.country_values,
-        #     height=45,
-        # )
-
-        # self.country_combobox.pack(
-        #     fill="x",
-        #     padx=30,
-        # )
-        # project_label = ctk.CTkLabel(
-        #     self.form_frame,
-        #     text="Project Name",
-        #     font=("Arial", 20),
-        # )
-        # project_label.pack(anchor="w", padx=30, pady=(30, 10))
-
-        # self.project_entry = ctk.CTkEntry(
-        #     self.form_frame,
-        #     height=60,
-        #     font=("Arial", 22),
-        # )
-        # self.project_entry.pack(fill="x", padx=30)
-
-        # # PROJECT TYPE
-
-        # type_label = ctk.CTkLabel(
-        #     self.form_frame,
-        #     text="Project Type",
-        #     font=("Arial", 20),
-        # )
-        # type_label.pack(anchor="w", padx=30, pady=(30, 10))
-
-        # self.project_type = ctk.CTkComboBox(
-        #     self.form_frame,
-        #     values=[
-        #         "Internal",
-        #         "Client",
-        #         "Research",
-        #     ],
-        #     height=60,
-        #     font=("Arial", 22),
-        # )
-        # self.project_type.pack(fill="x", padx=30)
-
-        # # ACTIVE CHECKBOX
-
-        # self.active_checkbox = ctk.CTkCheckBox(
-        #     self.form_frame,
-        #     text="Mark as Active",
-        #     font=("Arial", 20),
-        # )
-        # self.active_checkbox.pack(anchor="w", padx=30, pady=30)
-
-        # # ──────────────────────────────────────────────────────────────────
-        # # FOOTER NAVIGATION
-        # # ──────────────────────────────────────────────────────────────────
-
-        # footer = ctk.CTkFrame(self, fg_color="transparent")
-        # footer.pack(fill="x", padx=40, pady=(0, 30))
-
-        # back_button = ctk.CTkButton(
-        #     footer,
-        #     text="BACK",
-        #     width=180,
-        #     height=60,
+        # self.cancel_button = ctk.CTkButton(
+        #     self.footer,
+        #     text="Previous",
+        #     width=150,
+        #     height=48,
+        #     fg_color="transparent",
+        #     border_width=1,
+        #     border_color="#475569",
+        #     hover_color="#1E293B",
+        #     corner_radius=10,
+        #     font=("Inter", 15, "bold"),
         #     command=self._back,
         # )
-        # back_button.pack(side="left")
 
-        # next_button = ctk.CTkButton(
-        #     footer,
-        #     text="NEXT",
-        #     width=180,
-        #     height=60,
-        #     fg_color="#2563EB",
+        self.cancel_button.grid(
+            row=0,
+            column=0,
+            sticky="w",
+        )
+
+        # NEXT
+        self.next_button = make_button(
+            master=self.footer,
+            text="Next",
+            command=self._next,
+            enable_border_hover=True,
+            variant="secondary",
+            size="md",
+        )
+
+        # self.next_button = ctk.CTkButton(
+        #     self.footer,
+        #     text="Next",
+        #     width=150,
+        #     height=48,
+        #     fg_color=ACCENT,
+        #     hover_color="#DC2626",
+        #     corner_radius=10,
+        #     font=("Inter", 15, "bold"),
         #     command=self._next,
         # )
-        # next_button.pack(side="right")
+
+        self.next_button.grid(
+            row=0,
+            column=1,
+            sticky="e",
+        )
+
+    # ─────────────────────────────────────────────────────────────
+    # EVENTS
+    # ─────────────────────────────────────────────────────────────
+
+    def _update_counter(self, event=None):
+
+        text = self.description_box.get(
+            "1.0",
+            "end-1c",
+        )
+
+        if len(text) > 200:
+
+            self.description_box.delete(
+                "1.0 + 200 chars",
+                "end",
+            )
+
+            text = self.description_box.get(
+                "1.0",
+                "end-1c",
+            )
+
+        self.counter_label.configure(text=f"{len(text)} / 200")
+
+    # ─────────────────────────────────────────────────────────────
+    # DEBUG
+    # ─────────────────────────────────────────────────────────────
 
     def verify_country_output(self, selected_code):
-        print(f"🔥 DEBUGLOG: Country selected! Next phase value is: {selected_code}")
-        print(f"Datatype: {type(selected_code)} | Length: {len(selected_code)}")
+
+        print(f"Country selected: {selected_code}")
+
+    # ─────────────────────────────────────────────────────────────
+    # NAVIGATION
+    # ─────────────────────────────────────────────────────────────
 
     def _back(self):
+
         if self.on_back:
             self.on_back()
 
     def _next(self):
+
         data = {
+            "country": self.country_combo.get(),
+            "sector": self.sector_combo.get(),
             "project_name": self.project_entry.get(),
-            "project_type": self.project_type.get(),
-            "active": self.active_checkbox.get(),
+            "description": self.description_box.get(
+                "1.0",
+                "end-1c",
+            ),
         }
 
         print(data)

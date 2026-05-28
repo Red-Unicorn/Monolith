@@ -10,7 +10,7 @@ from datetime import datetime
 
 from gui.widgets.buttons import make_button
 from core.services.auth_service import AuthService
-from gui.theme.colors import BACKGROUND, INPUT
+from gui.theme.colors import BACKGROUND, INPUT_BACKGROUND, BUTTON_SECONDARY
 from gui.theme.layout import (
     INPUT_HEIGHT,
     INPUT_WIDTH,
@@ -170,7 +170,7 @@ class LoginPage(ctk.CTkFrame):
             placeholder_text="Email",
             width=INPUT_WIDTH,
             height=INPUT_HEIGHT,
-            fg_color=INPUT,  # "#303e4e",  # "#1E293B",
+            fg_color=INPUT_BACKGROUND,  # "#303e4e",  # "#1E293B",
             font=("Inter", 14),
             border_width=0,
         )
@@ -198,7 +198,7 @@ class LoginPage(ctk.CTkFrame):
         # PASSWORD FRAME
         self.password_frame = ctk.CTkFrame(
             self.container,
-            fg_color=INPUT,  # "#303e4e",
+            fg_color=INPUT_BACKGROUND,  # "#303e4e",
             corner_radius=6,
         )
 
@@ -286,9 +286,9 @@ class LoginPage(ctk.CTkFrame):
             variable=self.remember_me_var,
             font=("Inter", 13),
             text_color="#94A3B8",  # Slate gray text
-            fg_color="#EF4444",  # Accent fill color when checked
-            hover_color="#DC2626",  # Deep red hover boundary state
-            border_color="#334155",  # Subtle borders matching input text boxes
+            fg_color=BUTTON_SECONDARY,  # Accent fill color when checked
+            hover_color=BUTTON_SECONDARY,  # Deep red hover boundary state
+            border_color=INPUT_BACKGROUND,  # "#334155",  # Subtle borders matching input text boxes
             corner_radius=2,
             checkbox_width=16,
             checkbox_height=16,

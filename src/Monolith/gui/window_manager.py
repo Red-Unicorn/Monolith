@@ -18,9 +18,10 @@ from typing import Any, Optional
 from tkinter import Menu  # Import traditional Tkinter Menu tools
 import customtkinter as ctk
 from PIL import Image
-import keyring
-import os
-import json
+
+# import keyring
+# import os
+# import json
 
 # ── Local Design System Tokens and Page Modules ───────────────────────────────
 from gui.theme.layout import (
