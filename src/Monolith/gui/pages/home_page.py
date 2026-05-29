@@ -2,28 +2,31 @@
 ================================================================================
 PROJECT:       Monolith Application Engine
 MODULE:        gui.pages.home_page
-DESCRIPTION:   Streamlined single-action home operational hub. Removed wizard
-               pipelines and multi-frame trackers for step-by-step clarity.
+DESCRIPTION:   Streamlined single-action home operational hub.
 AUTHOR:        Red Unicorn (Intl') Holding Group – Core Engineering Team
 LICENSE:       Proprietary – All rights reserved
-VERSION:       7.0.0
+VERSION:       8.1.0
 ================================================================================
 """
 
 from __future__ import annotations
 
-# from typing import Any, Optional
 import customtkinter as ctk
 from PIL import Image
 
 # ── Design System Injections ──────────────────────────────────────────────────
 from gui.widgets.buttons import make_button
 from core.utils.paths import get_asset_path
-from gui.theme.colors import BACKGROUND, TEXT_MUTED, TEXT, CARD_BG
+from gui.theme.colors import CARD_BG
 from core.utils.logger import logger
 from gui.widgets.stepper import Stepper
 
-# from gui.theme.layout import APP_WIDTH, APP_HEIGHT
+# ──────────────────────────────────────────────────────────────────────────────
+# DESIGN TOKENS
+# ──────────────────────────────────────────────────────────────────────────────
+
+CONTENT_PADX = 60
+CARD_SPACING = 20
 
 # ──────────────────────────────────────────────────────────────────────────────
 # HOME PAGE
@@ -32,46 +35,59 @@ from gui.widgets.stepper import Stepper
 
 class HomePage(ctk.CTkFrame):
     """
-    Main wizard entry page.
+    Main operational entry page.
 
-    Presents the user with two large workflow choices:
-    1. Project / Resource flow
-    2. Document flow
+    Layout:
+    ─────────────────────────────────────────
+    TOP:
+        [ PROJECT ] [ DOCUMENT ]
 
-    Designed for:
-    - accessibility
-    - large interaction targets
-    - low cognitive load
-    - future multi-step navigation
+    BOTTOM:
+        [ DATABASE ]
     """
 
     def __init__(self, master, on_navigate=None):
-        super().__init__(master, fg_color=CARD_BG)
+
+        super().__init__(
+            master,
+            fg_color=CARD_BG,
+        )
 
         self.on_navigate = on_navigate
 
-        # ──────────────────────────────────────────────────────────────────
+        # ─────────────────────────────────────────────────────────────
         # PAGE LAYOUT
-        # ──────────────────────────────────────────────────────────────────
+        # ─────────────────────────────────────────────────────────────
 
-        self.pack(fill="both", expand=True)
+        self.pack(
+            fill="both",
+            expand=True,
+        )
 
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=5)
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=1)
+
         self.grid_columnconfigure(0, weight=1)
 
-        # ──────────────────────────────────────────────────────────────────
-        # HEADER / STEP INDICATOR
-        # ──────────────────────────────────────────────────────────────────
+        # BUILD UI
+        self._build_header()
+        self._build_content()
+
+    # ─────────────────────────────────────────────────────────────
+    # HEADER
+    # ─────────────────────────────────────────────────────────────
+
+    def _build_header(self):
 
         self.header_frame = ctk.CTkFrame(
             self,
             fg_color="transparent",
         )
+
         self.header_frame.grid(
             row=0,
             column=0,
-            sticky="nsew",
+            sticky="ew",
             padx=40,
             pady=(30, 30),
         )
@@ -79,8 +95,8 @@ class HomePage(ctk.CTkFrame):
         self.stepper = Stepper(
             self.header_frame,
             steps=[
+                "Type",
                 "Details",
-                "Review",
                 "Generated",
             ],
             current_step=1,
@@ -90,55 +106,42 @@ class HomePage(ctk.CTkFrame):
             fill="x",
         )
 
-        # self.step_label = ctk.CTkLabel(
-        #     self.header_frame,
-        #     text="STEP 1 OF 3",
-        #     font=("Oswald", 18, "bold"),
-        #     text_color=TEXT_MUTED,
-        # )
-        # self.step_label.pack(anchor="w")  # ,pady=(0, 20))
+    # ─────────────────────────────────────────────────────────────
+    # MAIN CONTENT
+    # ─────────────────────────────────────────────────────────────
 
-        # self.title_label = ctk.CTkLabel(
-        #     self.header_frame,
-        #     text="Create Reference Number for:",
-        #     font=("PT Sans", 12, "bold"),
-        #     text_color=TEXT,
-        # )
-        # self.title_label.pack(anchor="w")  # , pady=(10, 0))
-
-        # self.subtitle_label = ctk.CTkLabel(
-        #     self.header_frame,
-        #     text="Underping ?",
-        #     font=("Arial", 12),
-        #     text_color=MUTED,
-        # )
-        # self.subtitle_label.pack(anchor="w", pady=(10, 0))
-
-        # ──────────────────────────────────────────────────────────────────
-        # MAIN CONTENT
-        # ──────────────────────────────────────────────────────────────────
+    def _build_content(self):
 
         self.content_frame = ctk.CTkFrame(
             self,
             fg_color="transparent",
         )
+
         self.content_frame.grid(
             row=1,
             column=0,
             sticky="nsew",
-            # padx=20,
-            pady=20,
-            padx=60,
-            # pady=(20, 20),
+            padx=CONTENT_PADX,
+            pady=(0, 30),
         )
 
-        self.content_frame.grid_rowconfigure(0, weight=1)
+        # ONLY 2 COLUMNS
         self.content_frame.grid_columnconfigure(0, weight=1)
         self.content_frame.grid_columnconfigure(1, weight=1)
 
-        # ──────────────────────────────────────────────────────────────────
-        # PROJECT / RESOURCE BUTTON
-        # ──────────────────────────────────────────────────────────────────
+        # ROWS
+        self.content_frame.grid_rowconfigure(0, weight=1)
+        self.content_frame.grid_rowconfigure(1, weight=0)
+
+        self._build_project_button()
+        self._build_document_button()
+        self._build_database_button()
+
+    # ─────────────────────────────────────────────────────────────
+    # PROJECT BUTTON
+    # ─────────────────────────────────────────────────────────────
+
+    def _build_project_button(self):
 
         folder_icon = ctk.CTkImage(
             light_image=Image.open(get_asset_path("icons/folder.png")),
@@ -146,27 +149,29 @@ class HomePage(ctk.CTkFrame):
             size=(64, 64),
         )
 
-        self.folder_button = make_button(
+        self.project_button = make_button(
             master=self.content_frame,
-            text="PROJECT/RESOURCE",
+            text="PROJECT / RESOURCE",
             command=self._handle_folder_workflow,
             enable_border_hover=True,
+            compound="top",
             image=folder_icon,
             variant="primary",
             size="lg",
         )
 
-        self.folder_button.grid(
+        self.project_button.grid(
             row=0,
             column=0,
-            padx=(0, 20),
-            # pady=20,
-            sticky="ew",
+            padx=(0, CARD_SPACING),
+            sticky="nsew",
         )
 
-        # ──────────────────────────────────────────────────────────────────
-        # DOCUMENT BUTTON
-        # ──────────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────────
+    # DOCUMENT BUTTON
+    # ─────────────────────────────────────────────────────────────
+
+    def _build_document_button(self):
 
         document_icon = ctk.CTkImage(
             light_image=Image.open(get_asset_path("icons/file.png")),
@@ -179,6 +184,7 @@ class HomePage(ctk.CTkFrame):
             text="DOCUMENTS",
             command=self._handle_document_workflow,
             enable_border_hover=True,
+            compound="top",
             image=document_icon,
             variant="primary",
             size="lg",
@@ -187,29 +193,67 @@ class HomePage(ctk.CTkFrame):
         self.document_button.grid(
             row=0,
             column=1,
-            padx=(20, 0),
-            # pady=20,
-            sticky="ew",
+            padx=(CARD_SPACING, 0),
+            sticky="nsew",
         )
 
-    # ──────────────────────────────────────────────────────────────────────
-    # ACTIONS
-    # ──────────────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────────
+    # DATABASE BUTTON (BOTTOM FULL WIDTH)
+    # ─────────────────────────────────────────────────────────────
 
-    def _handle_folder_workflow(self) -> None:
-        """
-        Navigate to project/resource workflow.
-        """
+    def _build_database_button(self):
+
+        database_icon = ctk.CTkImage(
+            light_image=Image.open(get_asset_path("icons/data-search.png")),
+            dark_image=Image.open(get_asset_path("icons/data-search.png")),
+            size=(40, 40),
+        )
+
+        self.database_button = make_button(
+            master=self.content_frame,
+            text="CHECK / VIEW DATABASE",
+            command=self._handle_database_workflow,
+            enable_border_hover=True,
+            image=database_icon,
+            compound="left",
+            anchor="w",
+            variant="primary",
+            height=80,
+            border_spacing=20,
+        )
+
+        self.database_button.grid(
+            row=1,
+            column=0,
+            columnspan=2,
+            sticky="ew",
+            pady=(25, 40),
+        )
+
+    # ─────────────────────────────────────────────────────────────
+    # ACTIONS
+    # ─────────────────────────────────────────────────────────────
+
+    def _handle_folder_workflow(self):
+
         logger.debug("[NAVIGATION] Folder workflow selected.")
 
         if self.on_navigate:
+
             self.on_navigate("folder")
 
-    def _handle_document_workflow(self) -> None:
-        """
-        Navigate to document workflow.
-        """
+    def _handle_document_workflow(self):
+
         logger.debug("[NAVIGATION] Document workflow selected.")
 
         if self.on_navigate:
+
             self.on_navigate("document")
+
+    def _handle_database_workflow(self):
+
+        logger.debug("[NAVIGATION] Database workflow selected.")
+
+        if self.on_navigate:
+
+            self.on_navigate("database")

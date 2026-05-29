@@ -12,7 +12,6 @@ from __future__ import annotations
 
 # ── Local ─────────────────────────────────────────────────────────────────────
 from gui.window_manager import MonolithApp
-from gui.theme.fonts import register_application_fonts
 from core.utils.env import load_environment
 from core.utils.logger import logger
 
