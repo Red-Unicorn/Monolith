@@ -21,6 +21,7 @@ from gui.widgets.buttons import make_button
 from core.utils.paths import get_asset_path
 from gui.theme.colors import BACKGROUND, TEXT_MUTED, TEXT, CARD_BG
 from core.utils.logger import logger
+from gui.widgets.stepper import Stepper
 
 # from gui.theme.layout import APP_WIDTH, APP_HEIGHT
 
@@ -72,24 +73,38 @@ class HomePage(ctk.CTkFrame):
             column=0,
             sticky="nsew",
             padx=40,
-            pady=(20, 0),
+            pady=(30, 30),
         )
 
-        self.step_label = ctk.CTkLabel(
+        self.stepper = Stepper(
             self.header_frame,
-            text="STEP 1 OF 3",
-            font=("Oswald", 18, "bold"),
-            text_color=TEXT_MUTED,
+            steps=[
+                "Details",
+                "Review",
+                "Generated",
+            ],
+            current_step=1,
         )
-        self.step_label.pack(anchor="w")  # ,pady=(0, 20))
 
-        self.title_label = ctk.CTkLabel(
-            self.header_frame,
-            text="Create Reference Number for:",
-            font=("PT Sans", 12, "bold"),
-            text_color=TEXT,
+        self.stepper.pack(
+            fill="x",
         )
-        self.title_label.pack(anchor="w")  # , pady=(10, 0))
+
+        # self.step_label = ctk.CTkLabel(
+        #     self.header_frame,
+        #     text="STEP 1 OF 3",
+        #     font=("Oswald", 18, "bold"),
+        #     text_color=TEXT_MUTED,
+        # )
+        # self.step_label.pack(anchor="w")  # ,pady=(0, 20))
+
+        # self.title_label = ctk.CTkLabel(
+        #     self.header_frame,
+        #     text="Create Reference Number for:",
+        #     font=("PT Sans", 12, "bold"),
+        #     text_color=TEXT,
+        # )
+        # self.title_label.pack(anchor="w")  # , pady=(10, 0))
 
         # self.subtitle_label = ctk.CTkLabel(
         #     self.header_frame,

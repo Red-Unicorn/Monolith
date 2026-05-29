@@ -149,19 +149,19 @@ class FolderPage(ctk.CTkFrame):
         self.header_frame.grid(
             row=0,
             column=0,
-            sticky="ew",
+            sticky="nsew",
             padx=40,
-            pady=(35, 40),
+            pady=(30, 30),
         )
 
         self.stepper = Stepper(
             self.header_frame,
             steps=[
+                "Type",
                 "Details",
-                "Review",
                 "Generated",
             ],
-            current_step=1,
+            current_step=2,
         )
 
         self.stepper.pack(
@@ -336,7 +336,7 @@ class FolderPage(ctk.CTkFrame):
             activate_scrollbars=False,
             font=("Inter", 12),
             text_color=TEXT,
-            height=80,
+            height=100,
         )
 
         self.description_box.grid(
@@ -351,7 +351,7 @@ class FolderPage(ctk.CTkFrame):
             self.description_container,
             text="0 / 200",
             text_color=TEXT_MUTED,
-            font=("Inter", 10),
+            font=("Inter", 8),
         )
 
         self.counter_label.place(
@@ -408,7 +408,7 @@ class FolderPage(ctk.CTkFrame):
             column=0,
             sticky="ew",
             padx=40,
-            pady=(5, 35),
+            pady=(15, 35),
         )
 
         self.footer.grid_columnconfigure(0, weight=1)
