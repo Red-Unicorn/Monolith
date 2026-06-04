@@ -8,15 +8,9 @@ Version : 1.0.0
 Python  : 3.12+
 """
 
-# /Users/george/Work/Code/Monolith/src/Monolith/.env
-
-
 from dotenv import load_dotenv
 import os
 from core.utils.logger import logger
-
-# from pathlib import Path
-
 
 load_dotenv()
 

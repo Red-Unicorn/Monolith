@@ -238,41 +238,6 @@ class LoginPage(ctk.CTkFrame):
             side="right",
             padx=5,
         )
-        # self.password_label = ctk.CTkLabel(
-        #     self.container,
-        #     text="Password",
-        #     font=("Inter", 13),
-        #     text_color="#E2E8F0",
-        #     fg_color="transparent",
-        # )
-
-        # self.password_label.pack(
-        #     anchor="w",
-        #     padx=40,
-        #     # pady=(10, 5),
-        # )
-        # self.password_entry = ctk.CTkEntry(
-        #     self.container,
-        #     placeholder_text="Password",
-        #     show="•",
-        #     width=INPUT_WIDTH,
-        #     height=INPUT_HEIGHT,
-        #     font=("Inter", 14),
-        # )
-
-        # self.password_entry.pack(
-        #     pady=(0, 10),
-        #     padx=40,
-        # )
-
-        # Horizontal row matching the entry fields' width to align the checkbox nicely
-        # self.utility_frame = ctk.CTkFrame(
-        #     self.container,
-        #     fg_color="transparent",
-        #     width=INPUT_WIDTH,
-        # )
-        # self.utility_frame.pack(fill="x", padx=40)
-        # self.utility_frame.pack_propagate(False)  # Strict layout matching dimensions
 
         # Track checkbox state
         self.remember_me_var = tk.BooleanVar(value=False)
@@ -293,19 +258,6 @@ class LoginPage(ctk.CTkFrame):
         )
         self.remember_checkbox.pack(padx=40, pady=(0, 10), anchor="w")
 
-        # FOR AUTO-LOGIN
-        # saved_email = load_local_username()
-
-        # if saved_email:
-
-        #     self.email_entry.insert(
-        #         0,
-        #         saved_email,
-        #     )
-
-        #     self.remember_me_var.set(True)
-
-        # FOR AUTO-FILING
         saved_email = load_local_username()
 
         if saved_email:

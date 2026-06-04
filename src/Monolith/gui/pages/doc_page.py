@@ -200,16 +200,6 @@ class DocPage(ctk.CTkFrame):
             border_width=1,
             command=self.verify_file_output,
         )
-        # self.country_combo = SearchComboBox(
-        #     self.form_frame,
-        #     values=self.country_values,
-        #     image_provider=self.country_image_provider,
-        #     value_mapper=lambda country: country_to_iso3(country),
-        #     placeholder_text="Type any country...",
-        #     height=INPUT_HEIGHT,
-        #     fg_color=INPUT_BG,
-        #     corner_radius=8,
-        # )
 
         self.filetype_combo.grid(
             row=1,
@@ -284,38 +274,6 @@ class DocPage(ctk.CTkFrame):
             padx=0,
             pady=(0, 10),
         )
-
-        # # ─────────────────────────────────────────
-        # # PROJECT/RESOURCE OPTIONMENU
-        # # ─────────────────────────────────────────
-
-        # type_label = make_required_label(
-        #     self.form_frame,
-        #     "Type",
-        # )
-
-        # type_label.grid(
-        #     row=2,
-        #     column=1,
-        #     sticky="w",
-        # )
-
-        # self.optionmenu = CustomOptionMenu(
-        #     self.form_frame,
-        #     values=["Project", "Resource"],
-        #     height=INPUT_HEIGHT,
-        #     placeholder_text="Project/Resource",
-        #     image_provider=None,
-        #     max_results=2,
-        # )
-
-        # self.optionmenu.grid(
-        #     row=3,
-        #     column=1,
-        #     # columnspan=1,
-        #     sticky="ew",
-        #     pady=(0, 10),
-        # )
         # ─────────────────────────────────────────
         # DESCRIPTION
         # ─────────────────────────────────────────
@@ -533,9 +491,6 @@ class DocPage(ctk.CTkFrame):
         file_code = REGISTRY["file_types"][fileoutput]["code"]
         doccat_code = REGISTRY["document_categories"][doccatoutput]["code"]
 
-        # type_code = None
-        # type_code = "PRO" if type_selection == "Project" else "RES"
-        # Pack final synchronized structured payload
         data = {
             "file": fileoutput,  # Full name string (e.g. "United States")
             "file_code": (

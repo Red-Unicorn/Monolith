@@ -256,39 +256,6 @@ class RefPage(ctk.CTkFrame):
             rowspan=2,
             padx=20,
         )
-        # value = ctk.CTkLabel(
-        #     self.reference_frame,
-        #     text=self.get_refnumber(self.data),
-        #     text_color=SUCCESS_GREEN,
-        #     font=("Inter", 28, "bold"),
-        # )
-
-        # value.grid(
-        #     row=1,
-        #     column=0,
-        #     sticky="w",
-        #     padx=20,
-        #     pady=(0, 15),
-        # )
-
-        # copy_button = ctk.CTkButton(
-        #     self.reference_frame,
-        #     text="",
-        #     image=self.copy_icon,
-        #     width=48,
-        #     height=48,
-        #     fg_color="#334155",
-        #     hover_color="#475569",
-        #     corner_radius=10,
-        #     command=lambda: self._copy(self.reference_number),
-        # )
-
-        # copy_button.grid(
-        #     row=0,
-        #     column=1,
-        #     rowspan=2,
-        #     padx=20,
-        # )
 
     # ─────────────────────────────────────────────
     # FILENAME SECTION
@@ -368,40 +335,6 @@ class RefPage(ctk.CTkFrame):
             rowspan=2,
             padx=20,
         )
-
-        # value = ctk.CTkLabel(
-        #     self.filename_frame,
-        #     text=self.to_snake_case(self.data["project_name"]),
-        #     text_color=SUCCESS_GREEN,
-        #     font=("Inter", 22, "bold"),
-        # )
-
-        # value.grid(
-        #     row=1,
-        #     column=0,
-        #     sticky="w",
-        #     padx=20,
-        #     pady=(0, 15),
-        # )
-
-        # copy_button = ctk.CTkButton(
-        #     self.filename_frame,
-        #     text="",
-        #     image=self.copy_icon,
-        #     width=48,
-        #     height=48,
-        #     fg_color="#334155",
-        #     hover_color="#475569",
-        #     corner_radius=10,
-        #     command=lambda: self._copy(self.clean_filename),
-        # )
-
-        # copy_button.grid(
-        #     row=0,
-        #     column=1,
-        #     rowspan=2,
-        #     padx=20,
-        # )
 
     # ─────────────────────────────────────────────
     # SUCCESS SECTION
