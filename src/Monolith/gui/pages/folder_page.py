@@ -664,7 +664,7 @@ class FolderPage(ctk.CTkFrame):
             ),  # Clean ISO code token (e.g. "USA")
             "sector": sector_selection,
             "sector_code": sector_code,
-            "project_name": project_name,
+            "name": project_name,
             "type": type_selection,
             "type_code": type_code,
             "description": self.description_box.get("1.0", "end-1c"),

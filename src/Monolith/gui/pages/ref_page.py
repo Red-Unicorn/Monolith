@@ -16,6 +16,7 @@ from PIL import Image
 import pyperclip
 import secrets
 import re
+from datetime import date
 
 # ── Local Imports ─────────────────────────────────────────────────────────────
 from gui.widgets.buttons import make_button
@@ -328,7 +329,7 @@ class RefPage(ctk.CTkFrame):
             pady=(15, 0),
         )
         # Extract the exact string token drawn onto the user's viewport screen
-        generated_title = self.to_snake_case(self.data["project_name"])
+        generated_title = self.to_snake_case(self.data["name"])
 
         value = ctk.CTkLabel(
             self.filename_frame,
@@ -554,7 +555,11 @@ class RefPage(ctk.CTkFrame):
     def get_refnumber(self, data: dict) -> None:
         # FILTER DATA TO GET
         hex_chain = secrets.token_hex(2)
-        refnumber = f"{data["country_code"]}-{data["sector_code"]}-{data["type_code"]}-{hex_chain.upper()}"
+        today_str = date.today().strftime("%Y%m%d")
+        try:
+            refnumber = f"{data["country_code"]}-{data["sector_code"]}-{data["type_code"]}-{hex_chain.upper()}"
+        except KeyError as e:
+            refnumber = f"{today_str}-{data["file_code"]}-{data["doccat_code"]}-{hex_chain.upper()}"
         return refnumber
 
     def to_snake_case(self, text: str) -> str:

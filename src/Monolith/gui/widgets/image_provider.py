@@ -35,17 +35,25 @@ def initialize_registry() -> None:
         db_info = get_reference_values(db_reg)
 
         for name, info in db_info.items():
-            flag_image = None
+            image = None
             try:
-                path = get_asset_path(f'flags/png/{info.get("code")}.png')
-                flag_image = load_image(path, size=(20, 14))
+                if db_reg == "countries":
+                    path = get_asset_path(f'flags/png/{info.get("code")}.png')
+                    image = load_image(path, size=(20, 14))
+                elif db_reg == "file_types":
+                    path = get_asset_path(f'file_types/{info.get("code")}.png')
+                    try:
+                        image = load_image(path, size=(28, 28))
+                    except Exception as e:
+                        print(e)
             except Exception as e:
                 logger.debug(f"Impossible of loading flag: {path} - {e}")
-                flag_image = None
+                image = None
 
             # 4. Save into single structured registry record
             REGISTRY[db_reg][name] = {
                 "code": info.get("code"),
-                "image": flag_image,
+                "image": image,
                 "description": info.get("description"),
             }
+    # print(REGISTRY)

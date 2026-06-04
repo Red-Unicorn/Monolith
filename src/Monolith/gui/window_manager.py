@@ -25,6 +25,7 @@ from gui.pages.home_page import HomePage
 from gui.pages.folder_page import FolderPage
 from gui.pages.ref_page import RefPage
 from gui.pages.database_page import DatabaseMonitorWindow
+from gui.pages.doc_page import DocPage
 
 
 class MonolithApp(ctk.CTk):
@@ -113,8 +114,10 @@ class MonolithApp(ctk.CTk):
     # HOME NAVIGATION
     # =============================================================
     def handle_home_navigation(self, destination: str) -> None:
-        if destination in ("folder", "document"):
+        if destination in ("folder"):
             self.show_folder_page()
+        elif destination in ("document"):
+            self.show_doc_page()
 
     # =============================================================
     # FOLDER PAGE
@@ -135,6 +138,16 @@ class MonolithApp(ctk.CTk):
             data=data,
             on_back=self.show_folder_page,
             on_dashboard=self.show_home_page,
+        )
+
+    # =============================================================
+    # DOCUMENT PAGE
+    # =============================================================
+    def show_doc_page(self) -> None:
+        self.switch_page(
+            DocPage,
+            on_back=self.show_home_page,
+            on_next=self.show_ref_page,
         )
 
     # =============================================================

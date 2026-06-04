@@ -35,7 +35,7 @@ BORDER = "#334155"
 INPUT_HEIGHT = 44
 
 
-class FolderPage(ctk.CTkFrame):
+class DocPage(ctk.CTkFrame):
 
     def __init__(
         self,
@@ -61,8 +61,8 @@ class FolderPage(ctk.CTkFrame):
         # DATA
         # ─────────────────────────────────────────
 
-        self.country_values = list(get_reference_values("countries").keys())
-        self.sector_values = list(get_reference_values("sectors").keys())
+        self.filetype_value = list(get_reference_values("file_types").keys())
+        self.doccat_values = list(get_reference_values("document_categories").keys())
 
         # ─────────────────────────────────────────
         # GRID
@@ -77,40 +77,24 @@ class FolderPage(ctk.CTkFrame):
     # ─────────────────────────────────────────────────────────────
     # IMAGE PROVIDERS
     # ─────────────────────────────────────────────────────────────
-    def country_image_provider(self, country: str):
+    def image_provider(self, filetype: str):
         """
         Directly queries the centralized pre-loaded REGISTRY dictionary
         initialized at application boot sequence inside main.py.
         """
-        if not country:
+        if not filetype:
             return None
 
         # Import your shared data reference module
         from gui.widgets.image_provider import REGISTRY
 
         # Pull values directly out of your specified structural path configuration
-        country_node = REGISTRY["countries"].get(country)
-        if country_node:
-            return country_node.get(
+        file_node = REGISTRY["file_types"].get(filetype)
+        if file_node:
+            return file_node.get(
                 "image"
             )  # Delivers the pre-loaded ctk.CTkImage instance object
         return None
-
-    # def country_image_provider(self, country: str):
-    #     if not country:
-    #         return None
-
-    #     iso2 = country_to_iso2(country)
-    #     if not iso2:
-    #         return None
-
-    #     try:
-    #         return load_image(
-    #             f"flags/png/{iso2.lower()}.png",
-    #             size=(20, 14),
-    #         )
-    #     except Exception:
-    #         return None
 
     # ─────────────────────────────────────────────────────────────
     # CARD
@@ -196,7 +180,7 @@ class FolderPage(ctk.CTkFrame):
 
         country_label = make_required_label(
             self.form_frame,
-            "Country of Origin",
+            "File Type",
         )
 
         country_label.grid(
@@ -204,17 +188,17 @@ class FolderPage(ctk.CTkFrame):
             column=0,
             sticky="w",
         )
-        self.country_combo = SearchComboBox(
+        self.filetype_combo = SearchComboBox(
             self.form_frame,
-            values=self.country_values,
-            image_provider=self.country_image_provider,  # Points to REGISTRY direct query loop
+            values=self.filetype_value,
+            image_provider=self.image_provider,  # Points to REGISTRY direct query loop
             # value_mapper=lambda country: country_to_iso3(country),
-            placeholder_text="Type any country...",
+            placeholder_text="Select File Type",
             height=INPUT_HEIGHT,
             fg_color=INPUT_BG,
             corner_radius=8,
             border_width=1,
-            command=self.verify_country_output,
+            command=self.verify_file_output,
         )
         # self.country_combo = SearchComboBox(
         #     self.form_frame,
@@ -227,11 +211,11 @@ class FolderPage(ctk.CTkFrame):
         #     corner_radius=8,
         # )
 
-        self.country_combo.grid(
+        self.filetype_combo.grid(
             row=1,
             column=0,
             sticky="ew",
-            padx=(0, 18),
+            padx=(0, 10),
             pady=(0, 10),
         )
 
@@ -241,28 +225,25 @@ class FolderPage(ctk.CTkFrame):
 
         sector_label = make_required_label(
             self.form_frame,
-            "Sector",
+            "Document Category",
         )
 
-        sector_label.grid(
-            row=0,
-            column=1,
-            sticky="w",
-        )
+        sector_label.grid(row=0, column=1, sticky="w", padx=(0, 10))
 
-        self.sector_combo = CustomOptionMenu(
+        self.doccat_combo = CustomOptionMenu(
             self.form_frame,
-            values=self.sector_values,  # ["Project", "Resource"],
+            values=self.doccat_values,  # ["Project", "Resource"],
             height=INPUT_HEIGHT,
-            placeholder_text="Select sector",
+            placeholder_text="Select Document Category",
             image_provider=None,
             # max_results=20,
         )
 
-        self.sector_combo.grid(
+        self.doccat_combo.grid(
             row=1,
             column=1,
             sticky="ew",
+            padx=(10, 0),
             pady=(0, 10),
         )
 
@@ -272,13 +253,13 @@ class FolderPage(ctk.CTkFrame):
 
         project_label = make_required_label(
             self.form_frame,
-            "Project/Resource Name",
+            "Document Name",
         )
 
         project_label.grid(
             row=2,
             column=0,
-            # columnspan=2,
+            columnspan=2,
             sticky="w",
         )
 
@@ -290,50 +271,51 @@ class FolderPage(ctk.CTkFrame):
             border_width=0,
             corner_radius=8,
             font=("Inter", 14),
-            placeholder_text="Digital Banking Platform",
+            placeholder_text="FCO Agreement",
             placeholder_text_color="#94A3B8",
         )
 
         self.project_entry.grid(
             row=3,
             column=0,
-            # columnspan=2,
+            columnspan=2,
             sticky="ew",
-            padx=(0, 18),
+            # padx=(0, 18),
+            padx=0,
             pady=(0, 10),
         )
 
-        # ─────────────────────────────────────────
-        # PROJECT/RESOURCE OPTIONMENU
-        # ─────────────────────────────────────────
+        # # ─────────────────────────────────────────
+        # # PROJECT/RESOURCE OPTIONMENU
+        # # ─────────────────────────────────────────
 
-        type_label = make_required_label(
-            self.form_frame,
-            "Type",
-        )
+        # type_label = make_required_label(
+        #     self.form_frame,
+        #     "Type",
+        # )
 
-        type_label.grid(
-            row=2,
-            column=1,
-            sticky="w",
-        )
+        # type_label.grid(
+        #     row=2,
+        #     column=1,
+        #     sticky="w",
+        # )
 
-        self.optionmenu = CustomOptionMenu(
-            self.form_frame,
-            values=["Project", "Resource"],
-            height=INPUT_HEIGHT,
-            placeholder_text="Project/Resource",
-            image_provider=None,
-            max_results=2,
-        )
+        # self.optionmenu = CustomOptionMenu(
+        #     self.form_frame,
+        #     values=["Project", "Resource"],
+        #     height=INPUT_HEIGHT,
+        #     placeholder_text="Project/Resource",
+        #     image_provider=None,
+        #     max_results=2,
+        # )
 
-        self.optionmenu.grid(
-            row=3,
-            column=1,
-            # columnspan=1,
-            sticky="ew",
-            pady=(0, 10),
-        )
+        # self.optionmenu.grid(
+        #     row=3,
+        #     column=1,
+        #     # columnspan=1,
+        #     sticky="ew",
+        #     pady=(0, 10),
+        # )
         # ─────────────────────────────────────────
         # DESCRIPTION
         # ─────────────────────────────────────────
@@ -359,6 +341,7 @@ class FolderPage(ctk.CTkFrame):
             column=0,
             columnspan=2,
             sticky="ew",
+            padx=0,
             pady=(0, 20),
         )
 
@@ -515,29 +498,29 @@ class FolderPage(ctk.CTkFrame):
 
     def _next(self):
         # 1. Reset field borders
-        if hasattr(self.country_combo, "configure"):
-            self.country_combo.configure(border_color=BORDER)
-        if hasattr(self.sector_combo, "configure"):
-            self.sector_combo.configure(border_color=BORDER)
+        if hasattr(self.filetype_combo, "configure"):
+            self.filetype_combo.configure(border_color=BORDER)
+        if hasattr(self.doccat_combo, "configure"):
+            self.doccat_combo.configure(border_color=BORDER)
         self.project_entry.configure(border_color=BORDER)
 
         # 2. Grab field tokens
-        country_output = self.country_combo.get()
-        sector_selection = self.sector_combo.get()
+        fileoutput = self.filetype_combo.get()
+        doccatoutput = self.doccat_combo.get()
         project_name = self.project_entry.get().strip()
-        type_selection = self.optionmenu.get()
+        # type_selection = self.optionmenu.get()
         # 3. Check required parameters
         is_valid = True
 
-        if not country_output:
+        if not fileoutput:
             is_valid = False
-            if hasattr(self.country_combo, "configure"):
-                self.country_combo.configure(border_width=1, border_color=ACCENT)
+            if hasattr(self.filetype_combo, "configure"):
+                self.filetype_combo.configure(border_width=1, border_color=ACCENT)
 
-        if not sector_selection:
+        if not doccatoutput:
             is_valid = False
-            if hasattr(self.sector_combo, "configure"):
-                self.sector_combo.configure(border_width=1, border_color=ACCENT)
+            if hasattr(self.doccat_combo, "configure"):
+                self.doccat_combo.configure(border_width=1, border_color=ACCENT)
 
         if not project_name:
             is_valid = False
@@ -547,22 +530,20 @@ class FolderPage(ctk.CTkFrame):
             logger.debug("[VALIDATION WARNING] Missing mandatory fields.")
             return
 
-        country_code = REGISTRY["countries"][country_output]["code"]
-        sector_code = REGISTRY["sectors"][sector_selection]["code"]
+        file_code = REGISTRY["file_types"][fileoutput]["code"]
+        doccat_code = REGISTRY["document_categories"][doccatoutput]["code"]
 
-        type_code = None
-        type_code = "PRO" if type_selection == "Project" else "RES"
+        # type_code = None
+        # type_code = "PRO" if type_selection == "Project" else "RES"
         # Pack final synchronized structured payload
         data = {
-            "country": country_output,  # Full name string (e.g. "United States")
-            "country_code": (
-                country_code.upper() if country_code else None
+            "file": fileoutput,  # Full name string (e.g. "United States")
+            "file_code": (
+                file_code.upper() if file_code else None
             ),  # Clean ISO code token (e.g. "USA")
-            "sector": sector_selection,
-            "sector_code": sector_code,
-            "project_name": project_name,
-            "type": type_selection,
-            "type_code": type_code,
+            "doccat": doccatoutput,
+            "doccat_code": doccat_code,
+            "name": project_name,
             "description": self.description_box.get("1.0", "end-1c"),
         }
 
@@ -573,9 +554,9 @@ class FolderPage(ctk.CTkFrame):
     #     # DEBUG
     #     # ─────────────────────────────────────────────────────────────
 
-    def verify_country_output(self, selected_code):
-        print(REGISTRY["countries"][selected_code])
-        print(f"Country selected: {selected_code}")
+    def verify_file_output(self, selected_code):
+        print(REGISTRY["file_types"][selected_code])
+        print(f"file type selected: {selected_code}")
 
     def _on_type_changed(self, value: str):
         """Fires whenever optionmenu selections shift state."""
