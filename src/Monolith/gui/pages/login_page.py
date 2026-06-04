@@ -30,7 +30,6 @@ from core.services.auth_storage import (
     save_password,
     load_password,
 )
-from core.utils.misc import tint_icon
 
 
 class LoginPage(ctk.CTkFrame):
@@ -41,7 +40,6 @@ class LoginPage(ctk.CTkFrame):
 
         self.on_login = on_login
         self.auth_service = AuthService()
-
         # Loading images
         self.eye_open_img = ctk.CTkImage(
             light_image=Image.open(get_asset_path("icons/eye-open-w.png")),

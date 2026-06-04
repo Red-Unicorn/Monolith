@@ -39,19 +39,3 @@ def country_to_iso3(name: str) -> str:
 
         logger.debug("Unable to load contry name: {e}")
         return ""
-
-
-def tint_icon(path, color=(255, 255, 255)):
-
-    img = Image.open(path).convert("RGBA")
-    data = img.getdata()
-
-    new_data = []
-    for r, g, b, a in data:
-        if a > 0:
-            new_data.append((*color, a))
-        else:
-            new_data.append((r, g, b, a))
-
-    img.putdata(new_data)
-    return img

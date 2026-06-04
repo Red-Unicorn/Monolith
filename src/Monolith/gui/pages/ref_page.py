@@ -108,7 +108,7 @@ class RefPage(ctk.CTkFrame):
         self.copy_icon = ctk.CTkImage(
             light_image=Image.open(get_asset_path("icons/copy.png")),
             dark_image=Image.open(get_asset_path("icons/copy.png")),
-            size=(20, 22),
+            size=(20, 21),
         )
 
         self.success_icon = ctk.CTkImage(

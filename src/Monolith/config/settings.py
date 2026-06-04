@@ -14,6 +14,7 @@ Python  : 3.12+
 from dotenv import load_dotenv
 import os
 from core.utils.logger import logger
+
 # from pathlib import Path
 
 
@@ -28,3 +29,5 @@ APP_NAME: str = "Monolith"
 APP_VERSION: str = "1.0.0"
 
 MAX_DESCRIPTION_LENGTH: int = 200
+
+REGISTRY = {"countries": {}, "sectors": {}, "document_categories": {}, "file_types": {}}
