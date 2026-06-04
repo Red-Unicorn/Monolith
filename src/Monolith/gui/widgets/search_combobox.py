@@ -643,11 +643,13 @@ class SearchComboBox(ctk.CTkFrame):
         command=None,
         image_provider=None,
         value_mapper=None,
+        corner_radius: int = 8,
         dropdown_height: int = 220,
+        border_width: int = 0,
         **kwargs,
     ):
 
-        self.corner_radius = kwargs.pop("corner_radius", 8)
+        self.corner_radius = kwargs.pop("corner_radius", corner_radius)
 
         kwargs.setdefault("fg_color", "transparent")
 
@@ -657,10 +659,9 @@ class SearchComboBox(ctk.CTkFrame):
         self.values = values
         self.filtered_values = []
         self.command = command
-
+        self.border_width = border_width
         self.image_provider = image_provider
         self.value_mapper = value_mapper
-
         self.max_results = max_results
         self.dropdown_height = dropdown_height
 
@@ -682,7 +683,7 @@ class SearchComboBox(ctk.CTkFrame):
             fg_color="#1E293B",
             border_color="#334155",
             border_width=0,  # 1,
-            corner_radius=self.corner_radius,
+            corner_radius=8,
         )
 
         self.input_container.pack(fill="x", pady=1)
@@ -706,7 +707,7 @@ class SearchComboBox(ctk.CTkFrame):
             fg_color="transparent",
             bg_color="transparent",
             border_width=0,
-            corner_radius=0,
+            corner_radius=8,
             height=height - 4,
             text_color="#94A3B8",
             font=("Inter", 14),
@@ -1046,6 +1047,9 @@ class SearchComboBox(ctk.CTkFrame):
                     image=image,
                     width=20,
                 )
+            else:
+                self.left_image_label.configure(image=None, width=0)
+                self.left_image_label.pack_forget()
 
         # RAW OR MAPPED VALUE
         if self.value_mapper:

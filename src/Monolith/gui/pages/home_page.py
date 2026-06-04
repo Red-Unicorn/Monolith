@@ -66,12 +66,14 @@ class HomePage(ctk.CTkFrame):
 
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=0)  # NEW: Bottom Footer Row Space
 
         self.grid_columnconfigure(0, weight=1)
 
         # BUILD UI
         self._build_header()
         self._build_content()
+        self._build_footer()  # ADD THIS LINE
 
     # ─────────────────────────────────────────────────────────────
     # HEADER
@@ -89,7 +91,7 @@ class HomePage(ctk.CTkFrame):
             column=0,
             sticky="ew",
             padx=40,
-            pady=(30, 30),
+            pady=(30, 50),
         )
 
         self.stepper = Stepper(
@@ -227,7 +229,40 @@ class HomePage(ctk.CTkFrame):
             column=0,
             columnspan=2,
             sticky="ew",
-            pady=(25, 40),
+            pady=(25, 0),
+        )
+
+    # ─────────────────────────────────────────────────────────────
+    # FOOTER
+    # ─────────────────────────────────────────────────────────────
+
+    def _build_footer(self):
+        """Builds a bottom layout frame containing the Exit target."""
+        self.footer_frame = ctk.CTkFrame(
+            self,
+            fg_color="transparent",
+        )
+        self.footer_frame.grid(
+            row=2,
+            column=0,
+            sticky="ew",
+            padx=CONTENT_PADX,
+            pady=(0, 20),  # Pushes spacing smoothly against bottom outer frame edge
+        )
+        self.footer_frame.grid_columnconfigure(0, weight=1)
+
+        # Instantiate button using your local design engine wrappers
+        self.exit_button = make_button(
+            master=self.footer_frame,
+            text="Exit App",
+            command=self._handle_exit_app,
+            variant="secondary",  # Adjust to secondary if you prefer a subtle accent style
+            size="md",
+        )
+        self.exit_button.grid(
+            row=0,
+            column=0,
+            sticky="e",  # Anchors strictly to the bottom right corner bounding line
         )
 
     # ─────────────────────────────────────────────────────────────
@@ -257,3 +292,10 @@ class HomePage(ctk.CTkFrame):
         if self.on_navigate:
 
             self.on_navigate("database")
+
+    def _handle_exit_app(self):
+        """Logs session teardown context and terminates the root instance loop."""
+        logger.info("[APPLICATION LIFE] Shutdown requested from Home view dashboard.")
+
+        # Safely references the master ctk.CTk root application host context layer to terminate loop execution
+        self.quit()

@@ -9,16 +9,16 @@ import customtkinter as ctk
 from gui.theme.colors import BACKGROUND, CARD_BG
 
 from core.utils.ref_number_generator import get_reference_values
-from core.utils.misc import (
-    country_to_iso2,
-    country_to_iso3,
-)
 
 from gui.widgets.search_combobox import SearchComboBox
+from gui.widgets.custom_optionbox import CustomOptionMenu
 from gui.widgets.red_asterix import make_required_label
 from gui.widgets.stepper import Stepper
-from gui.widgets.image_provider import load_image
+
+# from gui.widgets.image_provider import load_image
 from gui.widgets.buttons import make_button
+from config.settings import REGISTRY
+from core.utils.logger import logger
 
 # ─────────────────────────────────────────────────────────────
 # DESIGN TOKENS
@@ -208,11 +208,12 @@ class FolderPage(ctk.CTkFrame):
             self.form_frame,
             values=self.country_values,
             image_provider=self.country_image_provider,  # Points to REGISTRY direct query loop
-            value_mapper=lambda country: country_to_iso3(country),
+            # value_mapper=lambda country: country_to_iso3(country),
             placeholder_text="Type any country...",
             height=INPUT_HEIGHT,
             fg_color=INPUT_BG,
             corner_radius=8,
+            border_width=1,
             command=self.verify_country_output,
         )
         # self.country_combo = SearchComboBox(
@@ -249,12 +250,21 @@ class FolderPage(ctk.CTkFrame):
             sticky="w",
         )
 
-        self.sector_combo = SearchComboBox(
+        # self.sector_combo = SearchComboBox(
+        #     self.form_frame,
+        #     values=self.sector_values,
+        #     height=INPUT_HEIGHT,
+        #     placeholder_text="Select Project's sector",
+        #     image_provider=None,
+        # )
+
+        self.sector_combo = CustomOptionMenu(
             self.form_frame,
-            values=self.sector_values,
+            values=self.sector_values,  # ["Project", "Resource"],
             height=INPUT_HEIGHT,
-            placeholder_text="Select Project's sector",
+            placeholder_text="Select sector",
             image_provider=None,
+            # max_results=20,
         )
 
         self.sector_combo.grid(
@@ -270,13 +280,13 @@ class FolderPage(ctk.CTkFrame):
 
         project_label = make_required_label(
             self.form_frame,
-            "Project Name",
+            "Project/Resource Name",
         )
 
         project_label.grid(
             row=2,
             column=0,
-            columnspan=2,
+            # columnspan=2,
             sticky="w",
         )
 
@@ -285,7 +295,7 @@ class FolderPage(ctk.CTkFrame):
             height=INPUT_HEIGHT,
             fg_color=INPUT_BG,
             border_color=BORDER,
-            border_width=1,
+            border_width=0,
             corner_radius=8,
             font=("Inter", 14),
             placeholder_text="Digital Banking Platform",
@@ -295,11 +305,109 @@ class FolderPage(ctk.CTkFrame):
         self.project_entry.grid(
             row=3,
             column=0,
-            columnspan=2,
+            # columnspan=2,
             sticky="ew",
+            padx=(0, 18),
             pady=(0, 10),
         )
 
+        # ─────────────────────────────────────────
+        # PROJECT/RESOURCE OPTIONMENU
+        # ─────────────────────────────────────────
+        # ─────────────────────────────────────────
+        # PROJECT/RESOURCE OPTIONMENU
+        # ─────────────────────────────────────────
+        # option_label = ctk.CTkLabel(
+        #     self.form_frame,
+        #     text="Type",
+        #     text_color=TEXT,
+        #     font=("Inter", 12),
+        # )
+        # option_label.grid(
+        #     row=2,
+        #     column=1,
+        #     sticky="w",
+        # )
+
+        # self.optionmenu = ctk.CTkOptionMenu(
+        #     self.form_frame,
+        #     height=INPUT_HEIGHT,
+        #     fg_color=INPUT_BG,
+        #     # border_color=BORDER,
+        #     # border_width=1,
+        #     corner_radius=8,
+        #     button_color=INPUT_BG,  # Set to INPUT_BG to make the button look seamless
+        #     button_hover_color="#273449",  # Highlight the background behind the arrow on hover
+        #     values=["Project", "Resource"],
+        #     command=self._on_type_changed,
+        # )
+        # self.optionmenu.set("Project")
+        # self.optionmenu.grid(
+        #     row=3,
+        #     column=1,
+        #     sticky="ew",
+        #     pady=(0, 10),
+        # )
+
+        # # ─── INJECT THE "▼" ARROW STRATEGY ───
+        # # 1. Delete CustomTkinter's internal canvas-drawn triangle vector
+        # self.optionmenu._canvas.delete("arrow")
+
+        # # 2. Add a text-based "▼" layer directly onto the internal canvas container
+        # # Note: 'anchor="e"' pads it right next to the border edge of your choice box
+        # self.optionmenu._canvas.create_text(
+        #     self.optionmenu._canvas.winfo_reqwidth()
+        #     - 16,  # X Coordinate placement (padded from right side)
+        #     self.optionmenu._canvas.winfo_reqheight()
+        #     / 2,  # Y Coordinate placement (dead centered)
+        #     text="▼",
+        #     fill="#94A3B8",  # Matches your TEXT_MUTED gray token color
+        #     font=("Inter", 11, "bold"),
+        #     anchor="e",
+        # )
+        type_label = make_required_label(
+            self.form_frame,
+            "Type",
+        )
+
+        type_label.grid(
+            row=2,
+            column=1,
+            sticky="w",
+        )
+
+        self.optionmenu = CustomOptionMenu(
+            self.form_frame,
+            values=["Project", "Resource"],
+            height=INPUT_HEIGHT,
+            placeholder_text="Project/Resource",
+            image_provider=None,
+            max_results=2,
+        )
+
+        # self.optionmenu = ctk.CTkOptionMenu(
+        #     self.form_frame,
+        #     height=INPUT_HEIGHT,
+        #     fg_color=INPUT_BG,
+        #     # border_color=BORDER,
+        #     # border_width=1,
+        #     corner_radius=8,
+        #     values=["Project", "Resource"],
+        #     command=self.verify_country_output,
+        #     button_color=INPUT_BG,  # Changes the background color behind the arrow
+        #     button_hover_color=INPUT_BG,  # Changes the background behind the arrow on hover
+        #     text_color="#94A3B8",  # Changes the option text color
+        #     dropdown_text_color="#94A3B8",
+        # )
+        # self.optionmenu.set("Project")
+
+        self.optionmenu.grid(
+            row=3,
+            column=1,
+            # columnspan=1,
+            sticky="ew",
+            pady=(0, 10),
+        )
         # ─────────────────────────────────────────
         # DESCRIPTION
         # ─────────────────────────────────────────
@@ -491,72 +599,76 @@ class FolderPage(ctk.CTkFrame):
         country_output = self.country_combo.get()
         sector_selection = self.sector_combo.get()
         project_name = self.project_entry.get().strip()
-
+        type_selection = self.optionmenu.get()
         # 3. Check required parameters
         is_valid = True
 
         if not country_output:
             is_valid = False
             if hasattr(self.country_combo, "configure"):
-                self.country_combo.configure(border_color=ACCENT)
+                self.country_combo.configure(border_width=1, border_color=ACCENT)
 
         if not sector_selection:
             is_valid = False
             if hasattr(self.sector_combo, "configure"):
-                self.sector_combo.configure(border_color=ACCENT)
+                self.sector_combo.configure(border_width=1, border_color=ACCENT)
 
         if not project_name:
             is_valid = False
-            self.project_entry.configure(border_color=ACCENT)
+            self.project_entry.configure(border_width=1, border_color=ACCENT)
 
         if not is_valid:
-            print("[VALIDATION WARNING] Missing mandatory fields.")
+            logger.debug("[VALIDATION WARNING] Missing mandatory fields.")
             return
 
-        # 4. Resolve explicit Country names and clean ISO string tokens
-        country_full_name = None
-        country_code = None
+        # # 4. Resolve explicit Country names and clean ISO string tokens
+        # country_full_name = None
+        # country_code = None
 
-        countries_data = get_reference_values("countries")
+        # countries_data = get_reference_values("countries")
 
-        # Check if widget directly returned the full name string
-        if country_output in countries_data:
-            country_full_name = country_output
-            country_code = country_to_iso3(country_output)
-        else:
-            # Widget returned the mapped ISO string code -> Reverse look up full name
-            country_code = country_output
-            for name, details in countries_data.items():
-                if name == country_code:
-                    country_full_name = name
-                    break
-                elif isinstance(details, dict) and details.get("code") == country_code:
-                    country_full_name = name
-                    break
+        # # Check if widget directly returned the full name string
+        # if country_output in countries_data:
+        #     country_full_name = country_output
+        #     # country_code = country_to_iso3(country_output)
+        # else:
+        #     # Widget returned the mapped ISO string code -> Reverse look up full name
+        #     country_code = country_output
+        #     for name, details in countries_data.items():
+        #         if name == country_code:
+        #             country_full_name = name
+        #             break
+        #         elif isinstance(details, dict) and details.get("code") == country_code:
+        #             country_full_name = name
+        #             break
 
-            # Safe layout fallback if look up isn't matched explicitly
-            if not country_full_name:
-                country_full_name = country_code
+        #     # Safe layout fallback if look up isn't matched explicitly
+        #     if not country_full_name:
+        #         country_full_name = country_code
 
-        # Sector code resolution
-        sector_code = None
-        sectors_data = get_reference_values("sectors")
-        if sector_selection in sectors_data:
-            sector_code = sectors_data[sector_selection].get("code")
+        # # Sector code resolution
+        # sector_code = None
+        # sectors_data = get_reference_values("sectors")
+        # if sector_selection in sectors_data:
+        #     sector_code = sectors_data[sector_selection].get("code")
+        country_code = REGISTRY["countries"][country_output]["code"]
+        sector_code = REGISTRY["sectors"][sector_selection]["code"]
 
-        # 5. Pack final synchronized structured payload
+        type_code = None
+        type_code = "PRO" if type_selection == "Project" else "RES"
+        # Pack final synchronized structured payload
         data = {
-            "country": country_full_name,  # Full name string (e.g. "United States")
+            "country": country_output,  # Full name string (e.g. "United States")
             "country_code": (
                 country_code.upper() if country_code else None
             ),  # Clean ISO code token (e.g. "USA")
             "sector": sector_selection,
             "sector_code": sector_code,
             "project_name": project_name,
+            "type": type_selection,
+            "type_code": type_code,
             "description": self.description_box.get("1.0", "end-1c"),
         }
-
-        print(data)
 
         if self.on_next:
             self.on_next(data)
@@ -1018,7 +1130,12 @@ class FolderPage(ctk.CTkFrame):
     #     # ─────────────────────────────────────────────────────────────
 
     def verify_country_output(self, selected_code):
+        print(REGISTRY["countries"][selected_code])
         print(f"Country selected: {selected_code}")
+
+    def _on_type_changed(self, value: str):
+        """Fires whenever optionmenu selections shift state."""
+        print(f"[OPTIONMENU UPDATE] Type mode initialized: {value}")
 
 
 #     # ─────────────────────────────────────────────────────────────

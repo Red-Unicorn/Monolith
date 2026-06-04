@@ -14,6 +14,8 @@ from __future__ import annotations
 import customtkinter as ctk
 from PIL import Image
 import pyperclip
+import secrets
+import re
 
 # ── Local Imports ─────────────────────────────────────────────────────────────
 from gui.widgets.buttons import make_button
@@ -213,9 +215,12 @@ class RefPage(ctk.CTkFrame):
             pady=(15, 0),
         )
 
+        # Extract the exact string token drawn onto the user's viewport screen
+        generated_ref = self.get_refnumber(self.data)
+
         value = ctk.CTkLabel(
             self.reference_frame,
-            text=self.reference_number,
+            text=generated_ref,  # Keeps data points synchronized
             text_color=SUCCESS_GREEN,
             font=("Inter", 28, "bold"),
         )
@@ -237,7 +242,11 @@ class RefPage(ctk.CTkFrame):
             fg_color="#334155",
             hover_color="#475569",
             corner_radius=10,
-            command=lambda: self._copy(self.reference_number),
+        )
+
+        # Configure lambda passing BOTH the text variable and the button memory reference
+        copy_button.configure(
+            command=lambda b=copy_button: self._copy(generated_ref, b)
         )
 
         copy_button.grid(
@@ -246,6 +255,39 @@ class RefPage(ctk.CTkFrame):
             rowspan=2,
             padx=20,
         )
+        # value = ctk.CTkLabel(
+        #     self.reference_frame,
+        #     text=self.get_refnumber(self.data),
+        #     text_color=SUCCESS_GREEN,
+        #     font=("Inter", 28, "bold"),
+        # )
+
+        # value.grid(
+        #     row=1,
+        #     column=0,
+        #     sticky="w",
+        #     padx=20,
+        #     pady=(0, 15),
+        # )
+
+        # copy_button = ctk.CTkButton(
+        #     self.reference_frame,
+        #     text="",
+        #     image=self.copy_icon,
+        #     width=48,
+        #     height=48,
+        #     fg_color="#334155",
+        #     hover_color="#475569",
+        #     corner_radius=10,
+        #     command=lambda: self._copy(self.reference_number),
+        # )
+
+        # copy_button.grid(
+        #     row=0,
+        #     column=1,
+        #     rowspan=2,
+        #     padx=20,
+        # )
 
     # ─────────────────────────────────────────────
     # FILENAME SECTION
@@ -285,12 +327,14 @@ class RefPage(ctk.CTkFrame):
             padx=20,
             pady=(15, 0),
         )
+        # Extract the exact string token drawn onto the user's viewport screen
+        generated_title = self.to_snake_case(self.data["project_name"])
 
         value = ctk.CTkLabel(
             self.filename_frame,
-            text=self.clean_filename,
+            text=generated_title,  # Keeps data points synchronized
             text_color=SUCCESS_GREEN,
-            font=("Inter", 22, "bold"),
+            font=("Inter", 28, "bold"),
         )
 
         value.grid(
@@ -310,7 +354,11 @@ class RefPage(ctk.CTkFrame):
             fg_color="#334155",
             hover_color="#475569",
             corner_radius=10,
-            command=lambda: self._copy(self.clean_filename),
+        )
+
+        # Configure lambda passing BOTH the text variable and the button memory reference
+        copy_button.configure(
+            command=lambda b=copy_button: self._copy(generated_title, b)
         )
 
         copy_button.grid(
@@ -319,6 +367,40 @@ class RefPage(ctk.CTkFrame):
             rowspan=2,
             padx=20,
         )
+
+        # value = ctk.CTkLabel(
+        #     self.filename_frame,
+        #     text=self.to_snake_case(self.data["project_name"]),
+        #     text_color=SUCCESS_GREEN,
+        #     font=("Inter", 22, "bold"),
+        # )
+
+        # value.grid(
+        #     row=1,
+        #     column=0,
+        #     sticky="w",
+        #     padx=20,
+        #     pady=(0, 15),
+        # )
+
+        # copy_button = ctk.CTkButton(
+        #     self.filename_frame,
+        #     text="",
+        #     image=self.copy_icon,
+        #     width=48,
+        #     height=48,
+        #     fg_color="#334155",
+        #     hover_color="#475569",
+        #     corner_radius=10,
+        #     command=lambda: self._copy(self.clean_filename),
+        # )
+
+        # copy_button.grid(
+        #     row=0,
+        #     column=1,
+        #     rowspan=2,
+        #     padx=20,
+        # )
 
     # ─────────────────────────────────────────────
     # SUCCESS SECTION
@@ -434,9 +516,79 @@ class RefPage(ctk.CTkFrame):
     # UTILITIES
     # ─────────────────────────────────────────────
 
-    def _copy(self, value: str):
+    # def _copy(self, value: str):
 
+    #     pyperclip.copy(value)
+    # ─────────────────────────────────────────────
+    # UTILITIES
+    # ─────────────────────────────────────────────
+
+    def _copy(self, value: str, button_widget: ctk.CTkButton):
+        """Copies the target text to clipboard and flashes a confirmation state."""
         pyperclip.copy(value)
+
+        # Preserve original state variables to allow safe reversion
+        original_text = button_widget.cget("text")
+        original_image = button_widget.cget("image")
+        original_width = button_widget.cget("width")
+        original_fg = button_widget.cget("fg_color")
+        original_hover = button_widget.cget("hover_color")
+
+        # Transform button state to indicate success
+        button_widget.configure(
+            text="Copied!",
+            image="",  # Clear the copy icon temporarily
+            width=60,  # Slightly widen to safely fit text bounds
+            fg_color=SUCCESS_BG,  # Blend with your success green token palette
+            hover_color=SUCCESS_BG,  # Prevent hover jitter while text is showing
+            text_color=SUCCESS_GREEN,
+            font=("Inter", 11, "bold"),
+        )
+
+        # Queue up the recovery layout state change after exactly 1500 milliseconds
+        self.after(
+            1500,
+            lambda: button_widget.configure(
+                text=original_text,
+                image=original_image,
+                width=original_width,
+                fg_color=original_fg,
+                hover_color=original_hover,
+                text_color=TEXT,
+            ),
+        )
+
+    def get_refnumber(self, data: dict) -> None:
+        # FILTER DATA TO GET
+        hex_chain = secrets.token_hex(2)
+        refnumber = f"{data["country_code"]}-{data["sector_code"]}-{data["type_code"]}-{hex_chain.upper()}"
+        return refnumber
+
+    def to_snake_case(self, text: str) -> str:
+        """
+        Converts any string (camelCase, PascalCase, spaces, hyphens) into clean snake_case,
+        ensuring every single word has its first letter capitalized (e.g., "John_Doe").
+        """
+        if not text:
+            return ""
+
+        # 1. Handle camelCase/PascalCase: Insert an underscore before any capital letter
+        # that is preceded by a lowercase letter or number.
+        s1 = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", text)
+
+        # 2. Handle consecutive capitals (e.g., "PDFReader" -> "PDF_Reader")
+        s2 = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s1)
+
+        # 3. Replace spaces, hyphens, and punctuation with a single underscore
+        s3 = re.sub(r"[^a-zA-Z0-9]+", "_", s2)
+
+        # 4. Clean up any trailing/leading underscores and split into raw words
+        cleaned_string = s3.strip("_")
+        words = cleaned_string.split("_")
+
+        # 5. Capitalize the first letter of each individual word and join them back together
+        # using the string `.capitalize()` method (safely handles any mixed casing leftover)
+        return "_".join(word.capitalize() for word in words if word)
 
     # ─────────────────────────────────────────────
     # ACTIONS
