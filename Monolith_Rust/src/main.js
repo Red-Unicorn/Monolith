@@ -374,14 +374,24 @@ function setupEventListeners() {
 // Toggle password text entry visibility
 function togglePasswordVisibility() {
   const input = document.getElementById("password-input");
-  const btn = document.getElementById("toggle-password-btn");
+  const img = document.getElementById("eye-icon");
   if (input.type === "password") {
     input.type = "text";
-    btn.textContent = "🙈";
+    img.src = "assets/icons/eye-open-w.png";
   } else {
     input.type = "password";
-    btn.textContent = "👁️";
+    img.src = "assets/icons/eye-closed-w.png";
   }
+}
+
+// Show success snackbar for 3 seconds
+function showSuccessSnackbar() {
+  const snack = document.getElementById("snackbar");
+  if (!snack) return;
+  snack.classList.add("show");
+  setTimeout(() => {
+    snack.classList.remove("show");
+  }, 3000);
 }
 
 // character counter trigger
@@ -643,10 +653,11 @@ async function handleProjectNext() {
   document.getElementById("generated-combined-val").textContent = `${refNum}_${cleanName}`;
 
   // Sync to database
-  await pushRecordToDatabase(refNum, projectFormData.type, name, country);
+  await pushRecordToDatabase(refNum, projectFormData.type, name, country, projectFormData.description);
 
   cameFromView = "project";
   await switchView("ref");
+  showSuccessSnackbar();
 }
 
 async function handleDocNext() {
@@ -693,10 +704,11 @@ async function handleDocNext() {
   const match = dbRecords.find(r => r.name_title === projectSelect && (r.type === "Project" || r.type === "Resource"));
   const country = match ? match.country : "France";
 
-  await pushRecordToDatabase(refNum, "Document", name, country);
+  await pushRecordToDatabase(refNum, "Document", name, country, docFormData.description);
 
   cameFromView = "document";
   await switchView("ref");
+  showSuccessSnackbar();
 }
 
 function generateRandomHex() {
@@ -757,10 +769,10 @@ async function loadDatabaseRecordsCache() {
   if (!supabaseClient) {
     if (!mockInitialized) {
       dbRecords = [
-        { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
-        { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
-        { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
-        { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
+        { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", description: "Modern banking web application with microservices", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
+        { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", description: "Security auditing tools for AWS/GCP cloud environments", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
+        { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", description: "Standard service level agreement signed with Bank of France", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
+        { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", description: "Automobile factory line upgrade for electric vehicles", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
       ];
       mockInitialized = true;
     }
@@ -770,7 +782,7 @@ async function loadDatabaseRecordsCache() {
   try {
     const { data, error } = await supabaseClient
       .from("records")
-      .select("ref_number, type, name_title, country, added_by, date_added")
+      .select("ref_number, type, name_title, country, added_by, date_added, description")
       .order("date_added", { ascending: false });
 
     if (error) throw error;
@@ -779,10 +791,10 @@ async function loadDatabaseRecordsCache() {
     console.error("Failed to load database records cache:", e);
     if (!mockInitialized) {
       dbRecords = [
-        { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
-        { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
-        { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
-        { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
+        { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", description: "Modern banking web application with microservices", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
+        { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", description: "Security auditing tools for AWS/GCP cloud environments", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
+        { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", description: "Standard service level agreement signed with Bank of France", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
+        { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", description: "Automobile factory line upgrade for electric vehicles", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
       ];
       mockInitialized = true;
     }
@@ -806,10 +818,10 @@ let mockInitialized = false;
 function loadMockDatabaseGrid() {
   if (!mockInitialized) {
     const staticMocks = [
-      { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
-      { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
-      { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
-      { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
+      { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", description: "Modern banking web application with microservices", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
+      { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", description: "Security auditing tools for AWS/GCP cloud environments", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
+      { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", description: "Standard service level agreement signed with Bank of France", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
+      { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", description: "Automobile factory line upgrade for electric vehicles", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
     ];
     dbRecords = [...dbRecords, ...staticMocks];
     mockInitialized = true;
@@ -849,6 +861,7 @@ function renderDatabaseGrid(records) {
       <div class="col-ref">${row.ref_number || ""}</div>
       <div class="col-type">${row.type || ""}</div>
       <div class="col-title">${row.name_title || ""}</div>
+      <div class="col-desc" title="${row.description || ""}">${row.description || ""}</div>
       <div class="col-country">${row.country || ""}</div>
       <div class="col-addedby">${row.added_by || ""}</div>
       <div class="col-date">${dateStr}</div>
@@ -866,6 +879,7 @@ function filterDatabaseGrid() {
     const matchesSearch = 
       (row.ref_number && row.ref_number.toLowerCase().includes(search)) ||
       (row.name_title && row.name_title.toLowerCase().includes(search)) ||
+      (row.description && row.description.toLowerCase().includes(search)) ||
       (row.added_by && row.added_by.toLowerCase().includes(search));
     
     const matchesType = type === "All Types" || row.type === type;
@@ -880,12 +894,13 @@ function filterDatabaseGrid() {
 // ──────────────────────────────────────────────────────────────────────────────
 // SYNC REQUISITES BACK TO SUPABASE
 // ──────────────────────────────────────────────────────────────────────────────
-async function pushRecordToDatabase(refNum, type, name, country) {
+async function pushRecordToDatabase(refNum, type, name, country, description) {
   const email = currentUserEmail || "Unknown User";
   const newRecord = {
     ref_number: refNum,
     type: type,
     name_title: name,
+    description: description || "",
     country: country,
     added_by: email,
     date_added: new Date().toISOString()
@@ -904,6 +919,7 @@ async function pushRecordToDatabase(refNum, type, name, country) {
       ref_number: refNum,
       type: type,
       name_title: name,
+      description: description || "",
       country: country,
       added_by: email,
       date_added: newRecord.date_added
@@ -922,13 +938,14 @@ function exportCSV() {
   if (dbRecords.length === 0) return;
 
   let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "Ref. Number,Type,Name / Title,Country,Added By,Date Added\n";
+  csvContent += "Ref. Number,Type,Name / Title,Description,Country,Added By,Date Added\n";
 
   dbRecords.forEach(r => {
     const row = [
       r.ref_number || "",
       r.type || "",
       `"${(r.name_title || "").replace(/"/g, '""')}"`,
+      `"${(r.description || "").replace(/"/g, '""')}"`,
       r.country || "",
       r.added_by || "",
       r.date_added || ""
@@ -949,13 +966,14 @@ function exportExcel() {
   // Simulates standard Excel layout by calling CSV binary save with a .xls mime header
   if (dbRecords.length === 0) return;
 
-  let excelContent = "Ref. Number\tType\tName / Title\tCountry\tAdded By\tDate Added\n";
+  let excelContent = "Ref. Number\tType\tName / Title\tDescription\tCountry\tAdded By\tDate Added\n";
 
   dbRecords.forEach(r => {
     const row = [
       r.ref_number || "",
       r.type || "",
       r.name_title || "",
+      r.description || "",
       r.country || "",
       r.added_by || "",
       r.date_added || ""
