@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 
 from core.utils.paths import find_project_root
 

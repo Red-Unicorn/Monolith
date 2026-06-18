@@ -8,22 +8,12 @@ DESCRIPTION:   Supabase-backed remote grid database viewer component.
 
 from __future__ import annotations
 
-import os
 import customtkinter as ctk
-from supabase import create_client, Client
+from core.database.supabase_client import SupabaseConnection
 
 # Injected Design Framework Tokens
 from gui.theme.colors import BACKGROUND, CARD_BG
 from gui.widgets.buttons import make_button
-
-# Config Variables
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://your-project.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "your-anon-key")
-
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception:
-    supabase = None
 
 # Design System Styling Rules
 INPUT_BG = "#1E293B"
@@ -40,6 +30,7 @@ def fetch_records(
     record_type: str = "All Types",
     country: str = "All Countries",
 ):
+    supabase = SupabaseConnection.get_client()
     if not supabase:
         # Mock fallback data structured precisely to mirror the screenshot if client connection isn't configured
         return [

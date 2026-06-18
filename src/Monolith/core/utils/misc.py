@@ -1,6 +1,5 @@
 import pycountry
 from core.utils.logger import logger
-from PIL import Image
 
 
 def iso3_to_iso2(code: str) -> str:

@@ -318,6 +318,8 @@ class SearchComboBox(ctk.CTkFrame):
 
             widget.destroy()
 
+        self.image_cache.clear()
+
         for value in self.filtered_values:
 
             row = ctk.CTkFrame(

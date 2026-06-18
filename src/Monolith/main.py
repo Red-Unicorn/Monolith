@@ -14,10 +14,7 @@ from __future__ import annotations
 from gui.window_manager import MonolithApp
 from core.utils.env import load_environment
 from core.utils.logger import logger
-
-from core.utils import ref_number_generator
 from gui.widgets.image_provider import initialize_registry
-from config.settings import REGISTRY
 
 load_environment()
 
@@ -31,11 +28,9 @@ def main() -> None:
     Sets global appearance defaults, creates the root Tk window,
     hands control to the WindowManager, and enters the Tk event loop.
     """
-
-    # Initializing values registry
+    # Pre-loading images and data
     initialize_registry()
-
-    # Start GUI
+    
     app = MonolithApp()
     app.mainloop()
 

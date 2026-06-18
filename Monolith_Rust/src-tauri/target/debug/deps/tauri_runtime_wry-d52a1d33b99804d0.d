@@ -1,0 +1,10 @@
+/Users/george/Work/Code/Monolith/Monolith_Rust/src-tauri/target/debug/deps/tauri_runtime_wry-d52a1d33b99804d0.d: /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/lib.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/webview.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/global_shortcut.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/clipboard.rs
+
+/Users/george/Work/Code/Monolith/Monolith_Rust/src-tauri/target/debug/deps/libtauri_runtime_wry-d52a1d33b99804d0.rlib: /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/lib.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/webview.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/global_shortcut.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/clipboard.rs
+
+/Users/george/Work/Code/Monolith/Monolith_Rust/src-tauri/target/debug/deps/libtauri_runtime_wry-d52a1d33b99804d0.rmeta: /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/lib.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/webview.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/global_shortcut.rs /Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/clipboard.rs
+
+/Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/lib.rs:
+/Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/webview.rs:
+/Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/global_shortcut.rs:
+/Users/george/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/clipboard.rs:

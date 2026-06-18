@@ -3,7 +3,6 @@ import customtkinter as ctk
 from core.utils.paths import get_asset_path
 from core.utils.ref_number_generator import get_reference_values
 from core.utils.logger import logger
-from core.utils.paths import get_asset_path
 from gui.widgets.search_combobox import SearchComboBox
 from config.settings import REGISTRY
 

@@ -1,14 +1,17 @@
+import os
 from supabase import create_client
+from core.utils.env import load_environment
 
-url = "https://ltrrrknknhbzhsafgoiu.supabase.co"
+# Load environment configuration securely from .env
+load_environment()
 
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cnJya25rbmhiemhzYWZnb2l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODc3MTEsImV4cCI6MjA5NDM2MzcxMX0.teazRAnf9ExYggvZx3ZTFR43ZaOGDoCcLs0ze7UrXQA"
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_KEY_OLD")
 
-# key = "sb_publishable_-_ptTGPrlYo5qY3W1sZekg_KzUhyEOc"
-
+if not url or not key:
+    raise ValueError("SUPABASE_URL and SUPABASE_KEY_OLD must be set in the environment variables.")
 
 supabase = create_client(url, key)
 
 data = supabase.table("profiles").select("*").limit(1).execute()
-print
-(data)
+print(data)

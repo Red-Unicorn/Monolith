@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from pathlib import Path
 from core.utils.paths import find_project_root
 
 

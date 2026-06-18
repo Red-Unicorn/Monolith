@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monolith</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Supabase JS CDN -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       LOGIN VIEW
+       ───────────────────────────────────────────────────────────── -->
+  <div id="login-view" class="view active">
+    <div class="login-card">
+      <div class="logo-area">
+        <img src="assets/icons/Monolith_Logo.png" alt="Logo" class="logo-img" id="login-logo">
+        <h1>MONOLITH</h1>
+        <p class="subtitle">Please sign in to continue</p>
+      </div>
+
+      <div class="form-error" id="login-error"></div>
+
+      <div class="input-group">
+        <label for="email-input">Email</label>
+        <input type="email" id="email-input" placeholder="Email">
+      </div>
+
+      <div class="input-group">
+        <label for="password-input">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password-input" placeholder="Password">
+          <button type="button" id="toggle-password-btn" class="icon-btn">
+            <img src="assets/icons/eye-closed-w.png" id="eye-icon" alt="Toggle Password" style="width: 20px; height: auto; display: block;">
+          </button>
+        </div>
+      </div>
+
+      <div class="remember-row">
+        <label class="checkbox-container">
+          <input type="checkbox" id="remember-me">
+          <span class="checkmark"></span>
+          Remember me
+        </label>
+      </div>
+
+      <button id="sign-in-btn" class="btn btn-primary btn-block">Sign in</button>
+      
+      <div class="footer-copy">© MONOLITH — <span class="current-year">2026</span></div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       MAIN APP CONTAINER (Wraps home, forms, database views)
+       ───────────────────────────────────────────────────────────── -->
+  <div id="app-view" class="view">
+    
+    <!-- Header Stepper -->
+    <header class="app-header">
+      <div class="stepper" id="app-stepper">
+        <div class="step" data-step="1">
+          <div class="step-badge">1</div>
+          <div class="step-subtitle">Type</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="2">
+          <div class="step-badge">2</div>
+          <div class="step-subtitle">Details</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="3">
+          <div class="step-badge">3</div>
+          <div class="step-subtitle">Generated</div>
+        </div>
+      </div>
+      <h2 class="app-header-title" id="app-view-title" style="display: none;">Reference Database</h2>
+    </header>
+
+    <!-- ───────────────────────────────────────────────────────────
+         DASHBOARD / HOME PAGE
+         ─────────────────────────────────────────────────────────── -->
+    <div id="home-subview" class="subview active">
+      <div class="dashboard-grid">
+        <button id="nav-project-btn" class="dash-card">
+          <div class="card-icon">
+            <img src="assets/icons/folder.png" alt="Folder">
+          </div>
+          <span class="card-title">PROJECT / RESOURCE</span>
+        </button>
+
+        <button id="nav-doc-btn" class="dash-card">
+          <div class="card-icon">
+            <img src="assets/icons/file.png" alt="File">
+          </div>
+          <span class="card-title">DOCUMENTS</span>
+        </button>
+
+        <button id="nav-db-btn" class="dash-card full-width">
+          <div class="card-icon-horizontal">
+            <img src="assets/icons/data-search.png" alt="Database">
+            <span class="card-title">CHECK / VIEW DATABASE</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="footer-row">
+        <button id="exit-btn" class="btn btn-secondary">
+          <svg class="exit-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Exit App
+        </button>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────
+         PROJECT / RESOURCE WIZARD (Folder Page)
+         ─────────────────────────────────────────────────────────── -->
+    <div id="project-subview" class="subview">
+      <div class="form-container">
+        <div class="form-row">
+          <div class="form-col col-60">
+            <label class="required-field">Country of Origin</label>
+            <div class="search-combobox" id="country-combobox">
+              <input type="text" class="combo-input" placeholder="Select Country" readonly>
+              <div class="combo-arrow">▼</div>
+              <div class="combo-dropdown">
+                <input type="text" class="combo-search" placeholder="Type country name...">
+                <div class="combo-results" id="country-results"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-col col-40">
+            <label class="required-field">Sector</label>
+            <div class="search-combobox" id="sector-combobox">
+              <input type="text" class="combo-input" placeholder="Select Sector" readonly>
+              <div class="combo-arrow">▼</div>
+              <div class="combo-dropdown">
+                <input type="text" class="combo-search" placeholder="Type sector name...">
+                <div class="combo-results" id="sector-results"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row mt-15">
+          <div class="form-col col-60">
+            <label class="required-field">Project/Resource Name</label>
+            <input type="text" id="project-name-input" placeholder="Digital Banking Platform">
+          </div>
+          <div class="form-col col-40">
+            <label class="required-field">Type</label>
+            <div class="search-combobox" id="type-combobox">
+              <input type="text" class="combo-input" placeholder="Select Type" readonly>
+              <div class="combo-arrow">▼</div>
+              <div class="combo-dropdown">
+                <div class="combo-results">
+                  <div class="combo-item" data-value="Project">Project</div>
+                  <div class="combo-item" data-value="Resource">Resource</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row mt-15">
+          <div class="form-col col-100">
+            <label>Description (max 200 chars.)</label>
+            <div class="textbox-wrapper">
+              <textarea id="project-desc-input" rows="4" maxlength="200" placeholder="Describe the project..."></textarea>
+              <span class="char-counter" id="project-char-counter">0 / 200</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions mt-30">
+          <button class="btn btn-primary back-to-home-btn">Previous</button>
+          <button id="project-next-btn" class="btn btn-secondary">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────
+         DOCUMENTS WIZARD (Doc Page)
+         ─────────────────────────────────────────────────────────── -->
+    <div id="doc-subview" class="subview">
+      <div class="form-container">
+        <div class="form-row">
+          <div class="form-col col-60">
+            <label class="required-field">Project/Resource</label>
+            <div class="search-combobox" id="project-select-combobox">
+              <input type="text" class="combo-input" placeholder="Select Project/Resource" readonly>
+              <div class="combo-arrow">▼</div>
+              <div class="combo-dropdown">
+                <input type="text" class="combo-search" placeholder="Type name...">
+                <div class="combo-results" id="project-select-results"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-col col-40">
+            <label class="required-field">Document Category</label>
+            <div class="search-combobox" id="doccat-combobox">
+              <input type="text" class="combo-input" placeholder="Select Category" readonly>
+              <div class="combo-arrow">▼</div>
+              <div class="combo-dropdown">
+                <input type="text" class="combo-search" placeholder="Type category name...">
+                <div class="combo-results" id="doccat-results"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row mt-15">
+          <div class="form-col col-100">
+            <label class="required-field">Document Name</label>
+            <input type="text" id="doc-name-input" placeholder="FCO Agreement">
+          </div>
+        </div>
+
+        <div class="form-row mt-15">
+          <div class="form-col col-100">
+            <label>Description (max 200 chars.)</label>
+            <div class="textbox-wrapper">
+              <textarea id="doc-desc-input" rows="4" maxlength="200" placeholder="Describe the document..."></textarea>
+              <span class="char-counter" id="doc-char-counter">0 / 200</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions mt-30">
+          <button class="btn btn-primary back-to-home-btn">Previous</button>
+          <button id="doc-next-btn" class="btn btn-secondary">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────
+         GENERATED REFERENCE VIEW (Ref Page)
+         ─────────────────────────────────────────────────────────── -->
+    <div id="ref-subview" class="subview">
+      <div class="ref-card">
+        
+        <div class="ref-section">
+          <span class="section-label">Reference Number</span>
+          <div class="value-row">
+            <span class="ref-value" id="generated-ref-val">FR-BNK-PRJ-A1B2</span>
+            <button class="btn-copy-action" id="copy-ref-btn" data-clipboard-id="generated-ref-val">
+              <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
+            </button>
+          </div>
+        </div>
+
+        <div class="ref-section mt-15">
+          <span class="section-label">Clean File Name</span>
+          <div class="value-row">
+            <span class="ref-value" id="generated-file-val">Digital_Banking_Platform</span>
+            <button class="btn-copy-action" id="copy-file-btn" data-clipboard-id="generated-file-val">
+              <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
+            </button>
+          </div>
+        </div>
+
+        <div class="ref-section mt-15">
+          <span class="section-label">Combined Reference & File Name</span>
+          <div class="value-row">
+            <span class="ref-value" id="generated-combined-val">FR-BNK-PRJ-A1B2_Digital_Banking_Platform</span>
+            <button class="btn-copy-action" id="copy-combined-btn" data-clipboard-id="generated-combined-val">
+              <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
+            </button>
+          </div>
+        </div>
+
+        <div class="success-banner mt-20">
+          <img src="assets/icons/check-circle.png" alt="Success" class="success-img">
+          <div class="banner-text">
+            <h4>Successfully generated!</h4>
+            <p>This reference number is unique.</p>
+          </div>
+        </div>
+
+        <div class="form-actions mt-30">
+          <button id="ref-back-btn" class="btn btn-primary">Back</button>
+          <button id="ref-create-another-btn" class="btn btn-secondary">Create Another</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────
+         DATABASE VIEW PAGE
+         ─────────────────────────────────────────────────────────── -->
+    <div id="database-subview" class="subview">
+      
+      <!-- Toolbar Filters -->
+      <div class="db-toolbar">
+        <input type="text" id="db-search" placeholder="Search anything...">
+        
+        <div class="db-filter-wrap">
+          <select id="db-type-filter">
+            <option value="All Types">All Types</option>
+            <option value="Project">Project</option>
+            <option value="Resource">Resource</option>
+            <option value="Document">Document</option>
+          </select>
+        </div>
+
+        <div class="db-filter-wrap">
+          <select id="db-country-filter">
+            <option value="All Countries">All Countries</option>
+            <option value="France">France</option>
+            <option value="United States">United States</option>
+            <option value="Germany">Germany</option>
+            <option value="UAE">UAE</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table Header -->
+      <div class="db-table-header">
+        <div class="col-ref">Ref. Number</div>
+        <div class="col-type">Type</div>
+        <div class="col-title">Name / Title</div>
+        <div class="col-country">Country</div>
+        <div class="col-addedby">Added By</div>
+        <div class="col-date">Date Added</div>
+      </div>
+
+      <!-- Table Content (Scrollable Grid) -->
+      <div class="db-scrollable" id="db-grid-content">
+        <!-- Rows will be dynamically loaded here -->
+      </div>
+
+      <!-- Database Footer -->
+      <div class="db-footer">
+        <button class="btn btn-primary back-to-home-btn" id="db-back-btn">← Back to Dashboard</button>
+        <span class="db-counter" id="db-record-count">Total: 0 records</span>
+        <div class="export-actions">
+          <button id="export-csv-btn" class="btn btn-primary">Export CSV</button>
+          <button id="export-xlsx-btn" class="btn btn-secondary">Export Excel</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

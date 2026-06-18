@@ -188,18 +188,39 @@ class FolderPage(ctk.CTkFrame):
             column=0,
             sticky="w",
         )
-        self.country_combo = SearchComboBox(
+
+        self.country_combo = ctk.CTkOptionMenu(
             self.form_frame,
-            values=self.country_values,
-            image_provider=self.country_image_provider,  # Points to REGISTRY direct query loop
-            # value_mapper=lambda country: country_to_iso3(country),
-            placeholder_text="Type any country...",
+            values=self.country_values,  
             height=INPUT_HEIGHT,
-            fg_color=INPUT_BG,
-            corner_radius=8,
-            border_width=1,
-            # command=self.verify_country_output,
+            fg_color="#1E293B",
+            button_color="#1E293B",
+            dropdown_fg_color="#1E293B",
+            dropdown_text_color="#FFFFFF",
+            # border_color="#334155",
+            # max_results=20,
         )
+
+        # self.country_combo = CustomOptionMenu(
+        #     self.form_frame,
+        #     values=self.country_values,  # ["Project", "Resource"],
+        #     height=INPUT_HEIGHT,
+        #     placeholder_text="Select country",
+        #     image_provider=None,
+        #     # max_results=20,
+        # )
+        # self.country_combo = SearchComboBox(
+        #     self.form_frame,
+        #     values=self.country_values,
+        #     image_provider=self.country_image_provider,  # Points to REGISTRY direct query loop
+        #     # value_mapper=lambda country: country_to_iso3(country),
+        #     placeholder_text="Type any country...",
+        #     height=INPUT_HEIGHT,
+        #     fg_color=INPUT_BG,
+        #     corner_radius=8,
+        #     border_width=1,
+        #     # command=self.verify_country_output,
+        # )
 
         self.country_combo.grid(
             row=1,
@@ -224,14 +245,26 @@ class FolderPage(ctk.CTkFrame):
             sticky="w",
         )
 
-        self.sector_combo = CustomOptionMenu(
+        self.sector_combo = ctk.CTkOptionMenu(
             self.form_frame,
-            values=self.sector_values,  # ["Project", "Resource"],
+            values=self.sector_values,  
             height=INPUT_HEIGHT,
-            placeholder_text="Select sector",
-            image_provider=None,
+            fg_color="#1E293B",
+            button_color="#1E293B",
+            dropdown_fg_color="#1E293B",
+            dropdown_text_color="#FFFFFF",
+            # border_color="#334155",
             # max_results=20,
         )
+
+        # self.sector_combo = CustomOptionMenu(
+        #     self.form_frame,
+        #     values=self.sector_values,  # ["Project", "Resource"],
+        #     height=INPUT_HEIGHT,
+        #     placeholder_text="Select sector",
+        #     image_provider=None,
+        #     # max_results=20,
+        # )
 
         self.sector_combo.grid(
             row=1,

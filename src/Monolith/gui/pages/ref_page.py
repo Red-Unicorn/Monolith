@@ -491,7 +491,7 @@ class RefPage(ctk.CTkFrame):
         today_str = date.today().strftime("%Y%m%d")
         try:
             refnumber = f"{data["country_code"]}-{data["sector_code"]}-{data["type_code"]}-{hex_chain.upper()}"
-        except KeyError as e:
+        except KeyError:
             refnumber = f"{today_str}-{data["file_code"]}-{data["doccat_code"]}-{hex_chain.upper()}"
         return refnumber
 

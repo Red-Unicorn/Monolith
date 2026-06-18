@@ -14,15 +14,16 @@
 # 4.Get sectors from database
 # 5.Generate random 4 digit hexadecimal
 
+import functools
 import sqlite3
-from pathlib import Path
 from core.utils.logger import logger
 from core.utils.paths import find_project_root
 
 DB_PATH = find_project_root("main.py") / "core" / "database" / "references.db"
 
 
-def get_reference_values(table_name: str) -> dict[str, list[str]]:
+@functools.lru_cache(maxsize=16)
+def get_reference_values(table_name: str) -> dict[str, dict[str, str | None]]:
 
     ALLOWED_TABLES = {
         "countries",

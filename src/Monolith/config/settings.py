@@ -8,9 +8,14 @@ Version : 1.0.0
 Python  : 3.12+
 """
 
+# /Users/george/Work/Code/Monolith/src/Monolith/.env
+
+
 from dotenv import load_dotenv
 import os
 from core.utils.logger import logger
+# from pathlib import Path
+
 
 load_dotenv()
 
@@ -24,4 +29,11 @@ APP_VERSION: str = "1.0.0"
 
 MAX_DESCRIPTION_LENGTH: int = 200
 
-REGISTRY = {"countries": {}, "sectors": {}, "document_categories": {}, "file_types": {}}
+REGISTRY: dict[str, dict[str, dict]] = {
+    "countries": {},
+    "document_categories": {},
+    "sectors": {},
+    "source_types": {},
+    "file_types": {},
+}
+
