@@ -299,6 +299,30 @@ fn to_pascal_snake_case(text: &str) -> String {
     capitalized.join("_")
 }
 
+fn get_offline_records_file_path() -> Result<PathBuf, String> {
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .map_err(|_| "Could not find home directory".to_string())?;
+    Ok(PathBuf::from(home).join(".monolith_offline_records.json"))
+}
+
+#[tauri::command]
+fn save_offline_records(records_json: &str) -> Result<(), String> {
+    let path = get_offline_records_file_path()?;
+    fs::write(path, records_json).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn load_offline_records() -> Result<String, String> {
+    let path = get_offline_records_file_path()?;
+    if !path.exists() {
+        return Ok("[]".to_string());
+    }
+    let content = fs::read_to_string(path).map_err(|e| e.to_string())?;
+    Ok(content)
+}
+
 #[derive(Serialize)]
 struct SupabaseConfig {
     url: String,
@@ -338,6 +362,11 @@ fn get_supabase_config() -> SupabaseConfig {
                     url = line.replace("SUPABASE_URL=", "").trim().to_string();
                 } else if line.starts_with("SUPABASE_KEY_OLD=") {
                     key = line.replace("SUPABASE_KEY_OLD=", "").trim().to_string();
+                } else if line.starts_with("SUPABASE_KEY=") {
+                    let parsed_key = line.replace("SUPABASE_KEY=", "").trim().to_string();
+                    if !parsed_key.is_empty() {
+                        key = parsed_key;
+                    }
                 }
             }
         }
@@ -346,9 +375,15 @@ fn get_supabase_config() -> SupabaseConfig {
     // Fallbacks
     if url.is_empty() {
         url = std::env::var("SUPABASE_URL").unwrap_or_default();
+        if url.is_empty() {
+            url = "https://ltrrrknknhbzhsafgoiu.supabase.co".to_string();
+        }
     }
     if key.is_empty() {
         key = std::env::var("SUPABASE_KEY").unwrap_or_default();
+        if key.is_empty() {
+            key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cnJya25rbmhiemhzYWZnb2l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODc3MTEsImV4cCI6MjA5NDM2MzcxMX0.teazRAnf9ExYggvZx3ZTFR43ZaOGDoCcLs0ze7UrXQA".to_string();
+        }
     }
 
     SupabaseConfig { url, key }
@@ -369,7 +404,9 @@ fn main() {
             load_local_username,
             clear_local_username,
             to_pascal_snake_case,
-            get_supabase_config
+            get_supabase_config,
+            save_offline_records,
+            load_offline_records
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

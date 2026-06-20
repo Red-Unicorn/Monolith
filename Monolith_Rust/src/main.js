@@ -15,7 +15,10 @@ const isTauri = typeof window !== 'undefined' && window.__TAURI__ !== undefined;
 const invoke = isTauri ? window.__TAURI__.tauri.invoke : async (cmd, args) => {
   console.log(`[Mock Invoke] ${cmd}`, args);
   if (cmd === "get_supabase_config") {
-    return { url: "", key: "" };
+    return {
+      url: "https://ltrrrknknhbzhsafgoiu.supabase.co",
+      key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cnJya25rbmhiemhzYWZnb2l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODc3MTEsImV4cCI6MjA5NDM2MzcxMX0.teazRAnf9ExYggvZx3ZTFR43ZaOGDoCcLs0ze7UrXQA"
+    };
   }
   if (cmd === "load_local_username" || cmd === "get_secure_token") {
     return null;
@@ -52,8 +55,43 @@ const invoke = isTauri ? window.__TAURI__.tauri.invoke : async (cmd, args) => {
   if (cmd === "to_pascal_snake_case") {
     return args.text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
   }
+  if (cmd === "load_offline_records") {
+    return localStorage.getItem("monolith_offline_records") || "[]";
+  }
+  if (cmd === "save_offline_records") {
+    localStorage.setItem("monolith_offline_records", args.recordsJson);
+    return null;
+  }
   return null;
 };
+
+async function saveLocalOfflineRecords(records) {
+  const jsonStr = JSON.stringify(records);
+  if (isTauri) {
+    try {
+      await invoke("save_offline_records", { recordsJson: jsonStr });
+    } catch (e) {
+      console.error("Failed to save offline records via Tauri:", e);
+    }
+  } else {
+    localStorage.setItem("monolith_offline_records", jsonStr);
+  }
+}
+
+async function loadLocalOfflineRecords() {
+  if (isTauri) {
+    try {
+      const jsonStr = await invoke("load_offline_records");
+      return JSON.parse(jsonStr || "[]");
+    } catch (e) {
+      console.error("Failed to load offline records via Tauri:", e);
+      return [];
+    }
+  } else {
+    const jsonStr = localStorage.getItem("monolith_offline_records");
+    return JSON.parse(jsonStr || "[]");
+  }
+}
 
 const appWindow = isTauri ? window.__TAURI__.window.appWindow : {
   setSize: async (size) => console.log(`[Mock SetSize] ${size.width}x${size.height}`),
@@ -317,6 +355,29 @@ function setupEventListeners() {
   });
   document.getElementById("toggle-password-btn").addEventListener("click", togglePasswordVisibility);
 
+  const offlineBypassBtn = document.getElementById("offline-bypass-btn");
+  if (offlineBypassBtn) {
+    offlineBypassBtn.addEventListener("click", async () => {
+      const email = document.getElementById("email-input").value.trim() || "offline@example.com";
+      const password = document.getElementById("password-input").value || "offline";
+      const rememberChecked = document.getElementById("remember-me").checked;
+
+      currentUserEmail = email;
+      supabaseClient = null;
+
+      if (rememberChecked) {
+        await invoke("save_local_username", { email });
+        await invoke("save_secure_token", { email, token: password });
+      } else {
+        await invoke("clear_local_username");
+        await invoke("clear_secure_token", { email });
+      }
+
+      await loadDatabaseRecordsCache();
+      await switchView("home");
+    });
+  }
+
   // Stepper Click Actions
   document.querySelectorAll(".step").forEach(stepEl => {
     stepEl.addEventListener("click", () => {
@@ -445,8 +506,10 @@ async function handleLogin() {
   const password = document.getElementById("password-input").value;
   const rememberChecked = document.getElementById("remember-me").checked;
   const errorLabel = document.getElementById("login-error");
+  const offlineBypassContainer = document.getElementById("offline-bypass-container");
 
   errorLabel.textContent = "";
+  if (offlineBypassContainer) offlineBypassContainer.style.display = "none";
 
   if (!email || !password) {
     errorLabel.textContent = "Please fill in all credentials.";
@@ -477,6 +540,7 @@ async function handleLogin() {
 
     if (error) {
       errorLabel.textContent = error.message;
+      if (offlineBypassContainer) offlineBypassContainer.style.display = "block";
       return;
     }
 
@@ -495,7 +559,9 @@ async function handleLogin() {
       await switchView("home");
     }
   } catch (err) {
-    errorLabel.textContent = err.message || "An authentication error occurred.";
+    console.error("Login connection failed:", err);
+    errorLabel.textContent = "Supabase connection failed.";
+    if (offlineBypassContainer) offlineBypassContainer.style.display = "block";
   }
 }
 
@@ -802,10 +868,7 @@ function handleCopy(button) {
 // ──────────────────────────────────────────────────────────────────────────────
 async function loadDatabaseRecordsCache() {
   if (!supabaseClient) {
-    if (!mockInitialized) {
-      dbRecords = [];
-      mockInitialized = true;
-    }
+    dbRecords = await loadLocalOfflineRecords();
     return;
   }
 
@@ -817,12 +880,10 @@ async function loadDatabaseRecordsCache() {
 
     if (error) throw error;
     dbRecords = data || [];
+    await saveLocalOfflineRecords(dbRecords);
   } catch (e) {
-    console.error("Failed to load database records cache:", e);
-    if (!mockInitialized) {
-      dbRecords = [];
-      mockInitialized = true;
-    }
+    console.error("Failed to load database records cache, falling back to local storage:", e);
+    dbRecords = await loadLocalOfflineRecords();
   }
 }
 
@@ -830,11 +891,7 @@ async function loadDatabaseGrid() {
   const container = document.getElementById("db-grid-content");
   container.innerHTML = "<div style='text-align:center; padding:30px; color:var(--text-muted);'>Loading records...</div>";
 
-  if (supabaseClient) {
-    await loadDatabaseRecordsCache();
-  } else {
-    loadMockDatabaseGrid();
-  }
+  await loadDatabaseRecordsCache();
   renderDatabaseGrid(dbRecords);
 }
 
@@ -928,8 +985,11 @@ async function pushRecordToDatabase(refNum, type, name, country, description) {
   // Add dynamically to local grid
   dbRecords.unshift(newRecord);
 
+  // Save local persistent backup
+  await saveLocalOfflineRecords(dbRecords);
+
   if (!supabaseClient) {
-    console.log("Offline mode: saved record locally in memory.");
+    console.log("Offline mode: saved record locally.");
     return;
   }
 
@@ -944,7 +1004,11 @@ async function pushRecordToDatabase(refNum, type, name, country, description) {
       date_added: newRecord.date_added
     });
 
-    if (error) console.error("Failed to insert record:", error.message);
+    if (error) {
+      console.error("Failed to insert record to Supabase:", error.message);
+    } else {
+      console.log("Successfully sent record to Supabase!");
+    }
   } catch (e) {
     console.error("Database insert query aborted:", e);
   }
