@@ -86,3 +86,41 @@ To run the clear-up script:
    ```bash
    node ../.gemini/antigravity-ide/scratch/clear_db.js
    ```
+
+---
+
+## 🔍 Codebase Audit
+
+A comprehensive codebase audit was performed on the Monolith_Rust application. Below is a summary of the architectural design, security mechanisms, strengths, and recommendations.
+
+### 1. Key Component Deep-Dive
+
+*   **Defensive UI Layout System**: Sizing is constrained to a fixed client viewport of `650px` width and `500px` height. Elements use a robust flex container layout (`flex: 1; min-height: 0;` on `.subview` and inner panels) to guarantee consistent layout stretching in WebView engines. All action buttons are consistently padded exactly `40px` from the bottom edge.
+*   **Secure Credentials Storage**: Hooks directly into the OS-native keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service) via the Rust `keyring` crate. User passwords/keys are never written to disk in plain text.
+*   **User Hint Cache**: The "Remember Me" credentials hint is stored in a JSON file at `~/.monolith_user_hint.json`.
+*   **Lookup Engine (SQLite)**: Bundled local database `references.db` is queried for validation codes. The Rust backend uses `PRAGMA table_info` to adapt queries dynamically based on the schema's available columns (e.g. dynamically checking for a `description` column).
+*   **Case Formatting (`to_snake_case`)**: Despite its name, this Rust command formats strings to `Pascal_Snake_Case` (e.g., `"digital banking"` -> `"Digital_Banking"`) by capitalizing words and joining them with underscores.
+
+### 2. Key Strengths
+*   **Lightweight WebView Architecture**: Does not require heavy bundlers (Webpack, Vite) during execution, keeping startup load times virtually instant.
+*   **Robust Offline Mock Fallback**: Smooth transition into mock mode when database servers or internet access are unavailable.
+
+---
+
+## 💡 Recommendations for Improvement
+
+Here are key architectural and design improvements recommended for the Monolith_Rust codebase:
+
+1.  **Eliminate Hardcoded Fallback Secrets**:
+    *   *Issue*: The production Supabase URL and anonymous token key are hardcoded in the Rust code as fallbacks ([main.rs:L258-L263](file:///Users/george/Work/Code/Monolith/Monolith_Rust/src-tauri/src/main.rs#L258-L263)).
+    *   *Improvement*: Remove hardcoded secrets and read them exclusively from environment variables or a secure configuration file at runtime/build-time.
+2.  **Optimize Supabase Authenticated Fetching**:
+    *   *Issue*: The database records cache load starts at window load before the user is authenticated, resulting in blocked Supabase read requests.
+    *   *Improvement*: Defer the initial Supabase sync until after a successful login in `main.js`.
+3.  **Add Keyring Driver Fallback**:
+    *   *Issue*: The `keyring` library will fail if the system keychain daemon is missing or locked (e.g., in a virtualized container, terminal execution, or headless environment).
+    *   *Improvement*: Catch keyring initialization errors gracefully and fallback to an encrypted local file store if the OS vault is unavailable.
+4.  **Rename `to_snake_case` Command**:
+    *   *Issue*: The command name is misleading because it generates `Pascal_Snake_Case`.
+    *   *Improvement*: Rename the Tauri command and the JavaScript bindings to `to_pascal_snake_case` to prevent future development layout confusion.
+

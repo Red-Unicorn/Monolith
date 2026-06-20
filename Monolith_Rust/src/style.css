@@ -441,7 +441,7 @@ select:focus {
    DASHBOARD / HOME PAGE
    ───────────────────────────────────────────────────────────── */
 #home-subview {
-  padding: 30px 40px 30px;
+  padding: 30px 40px 40px;
 }
 
 .dashboard-grid {
@@ -589,7 +589,7 @@ select:focus {
    ───────────────────────────────────────────────────────────── */
 #project-subview,
 #doc-subview {
-  padding: 20px 40px 30px;
+  padding: 20px 40px 40px;
 }
 
 .form-container {
@@ -646,7 +646,7 @@ textarea {
    GENERATED REFERENCE VIEW
    ───────────────────────────────────────────────────────────── */
 #ref-subview {
-  padding: 10px 40px 30px;
+  padding: 10px 40px 40px;
 }
 
 .ref-card {
@@ -755,7 +755,7 @@ textarea {
    DATABASE VIEW PAGE
    ───────────────────────────────────────────────────────────── */
 #database-subview {
-  padding: 20px 45px 30px;
+  padding: 20px 45px 40px;
   height: 100%;
 }
 

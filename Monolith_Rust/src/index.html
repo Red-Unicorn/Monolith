@@ -248,36 +248,26 @@
     <div id="ref-subview" class="subview">
       <div class="ref-card">
         
-        <div class="ref-grid">
-          <div class="ref-section">
-            <span class="section-label">Reference Number</span>
-            <div class="value-row">
-              <span class="ref-value" id="generated-ref-val">FR-BNK-PRJ-A1B2</span>
-              <button class="btn-copy-action" id="copy-ref-btn" data-clipboard-id="generated-ref-val">
-                <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
-              </button>
-            </div>
-          </div>
-
-          <div class="ref-section">
-            <span class="section-label">Clean File Name</span>
-            <div class="value-row">
-              <span class="ref-value" id="generated-file-val">Digital_Banking_Platform</span>
-              <button class="btn-copy-action" id="copy-file-btn" data-clipboard-id="generated-file-val">
-                <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
-              </button>
-            </div>
+        <!-- Selection Summary Box -->
+        <div class="ref-section" id="ref-summary-box">
+          <span class="section-label">Summary of Selection</span>
+          <div id="ref-summary-content" style="margin-top: 10px; font-size: 13px; line-height: 1.6;">
+            <!-- Will be populated dynamically -->
           </div>
         </div>
 
-        <div class="ref-section highlighted mt-15">
+        <!-- Hidden elements to preserve JS bindings and copy functions -->
+        <span id="generated-ref-val" style="display: none;"></span>
+        <span id="generated-file-val" style="display: none;"></span>
+
+        <div class="ref-section highlighted mt-15" style="position: relative; padding-right: 60px;">
           <span class="section-label">Reference Name</span>
           <div class="value-row">
             <span class="ref-value" id="generated-combined-val">FR-BNK-PRJ-A1B2_Digital_Banking_Platform</span>
-            <button class="btn-copy-action" id="copy-combined-btn" data-clipboard-id="generated-combined-val">
-              <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
-            </button>
           </div>
+          <button class="btn-copy-action" id="copy-combined-btn" data-clipboard-id="generated-combined-val" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%);">
+            <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
+          </button>
         </div>
 
         <div class="form-actions">

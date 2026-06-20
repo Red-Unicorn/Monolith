@@ -256,6 +256,32 @@ async function switchView(viewName) {
         } else if (viewName === "ref") {
           document.getElementById("ref-subview").classList.add("active");
           updateStepper(3);
+
+          // Populate selection summary dynamically
+          const summaryContent = document.getElementById("ref-summary-content");
+          if (summaryContent) {
+            const refNum = document.getElementById("generated-ref-val").textContent;
+            if (cameFromView === "project") {
+              summaryContent.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <div><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Country of Origin:</span> <span style="font-weight: 500; color: var(--text-main);">${projectFormData.country}</span></div>
+                  <div><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Sector:</span> <span style="font-weight: 500; color: var(--text-main);">${projectFormData.sector}</span></div>
+                  <div><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Project/Resource Name:</span> <span style="font-weight: 500; color: var(--text-main);">${projectFormData.name}</span></div>
+                  <div><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Type:</span> <span style="font-weight: 500; color: var(--text-main);">${projectFormData.type}</span></div>
+                  <div style="margin-top: 6px; padding-top: 10px; border-top: 1px dashed var(--border-color);"><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Reference Number:</span> <span style="font-weight: 600; color: var(--accent-green); font-family: var(--font-mono);">${refNum}</span></div>
+                </div>
+              `;
+            } else if (cameFromView === "document") {
+              summaryContent.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <div><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Project/Resource:</span> <span style="font-weight: 500; color: var(--text-main);">${docFormData.project_name}</span></div>
+                  <div><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Document Category:</span> <span style="font-weight: 500; color: var(--text-main);">${docFormData.doccat}</span></div>
+                  <div><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Document Name:</span> <span style="font-weight: 500; color: var(--text-main);">${docFormData.name}</span></div>
+                  <div style="margin-top: 6px; padding-top: 10px; border-top: 1px dashed var(--border-color);"><span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Reference Number:</span> <span style="font-weight: 600; color: var(--accent-green); font-family: var(--font-mono);">${refNum}</span></div>
+                </div>
+              `;
+            }
+          }
         }
       }
     }
@@ -347,9 +373,14 @@ function setupEventListeners() {
   });
 
   // Clipboard copies
-  document.getElementById("copy-ref-btn").addEventListener("click", (e) => handleCopy(e.currentTarget));
-  document.getElementById("copy-file-btn").addEventListener("click", (e) => handleCopy(e.currentTarget));
-  document.getElementById("copy-combined-btn").addEventListener("click", (e) => handleCopy(e.currentTarget));
+  const copyRefBtn = document.getElementById("copy-ref-btn");
+  if (copyRefBtn) copyRefBtn.addEventListener("click", (e) => handleCopy(e.currentTarget));
+
+  const copyFileBtn = document.getElementById("copy-file-btn");
+  if (copyFileBtn) copyFileBtn.addEventListener("click", (e) => handleCopy(e.currentTarget));
+
+  const copyCombinedBtn = document.getElementById("copy-combined-btn");
+  if (copyCombinedBtn) copyCombinedBtn.addEventListener("click", (e) => handleCopy(e.currentTarget));
 
   // Database Filter Events
   document.getElementById("db-search").addEventListener("input", filterDatabaseGrid);
