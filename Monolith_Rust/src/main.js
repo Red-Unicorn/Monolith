@@ -49,8 +49,8 @@ const invoke = isTauri ? window.__TAURI__.tauri.invoke : async (cmd, args) => {
     }
     return {};
   }
-  if (cmd === "to_snake_case") {
-    return args.text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (cmd === "to_pascal_snake_case") {
+    return args.text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
   }
   return null;
 };
@@ -138,8 +138,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Pre-load reference lists from SQLite db
   await loadReferenceData();
 
-  // Pre-load database records cache for wizards dropdown
-  await loadDatabaseRecordsCache();
+  // Pre-load database records cache deferred to post-login
 
   // Setup UI elements & event listeners
   setupEventListeners();
@@ -462,6 +461,7 @@ async function handleLogin() {
       await invoke("clear_local_username");
       await invoke("clear_secure_token", { email });
     }
+    await loadDatabaseRecordsCache();
     await switchView("home");
     return;
   }
@@ -488,6 +488,7 @@ async function handleLogin() {
         await invoke("clear_secure_token", { email });
       }
 
+      await loadDatabaseRecordsCache();
       await switchView("home");
     }
   } catch (err) {
@@ -676,7 +677,7 @@ async function handleProjectNext() {
   // Generate reference and filename tokens
   const hex = generateRandomHex();
   const refNum = `${projectFormData.country_code.toUpperCase()}-${projectFormData.sector_code.toUpperCase()}-${projectFormData.type_code}-${hex}`;
-  const cleanName = await invoke("to_snake_case", { text: name });
+  const cleanName = await invoke("to_pascal_snake_case", { text: name });
 
   // Update DOM Output View
   document.getElementById("generated-ref-val").textContent = refNum;
@@ -725,7 +726,7 @@ async function handleDocNext() {
   const hex = generateRandomHex();
   const prefix = docFormData.project_ref || "PROJ-REF";
   const refNum = `${prefix}-${docFormData.doccat_code.toUpperCase()}-${hex}`;
-  const cleanName = await invoke("to_snake_case", { text: name });
+  const cleanName = await invoke("to_pascal_snake_case", { text: name });
 
   document.getElementById("generated-ref-val").textContent = refNum;
   document.getElementById("generated-file-val").textContent = cleanName;

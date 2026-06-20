@@ -99,31 +99,120 @@ fn get_reference_values(
 
 const SERVICE_NAME: &str = "Monolith";
 
+fn hex_encode(text: &str) -> String {
+    text.as_bytes().iter().map(|b| format!("{:02x}", b)).collect()
+}
+
+fn hex_decode(hex: &str) -> Result<String, String> {
+    if hex.len() % 2 != 0 {
+        return Err("Invalid hex string length".to_string());
+    }
+    let mut bytes = Vec::new();
+    for i in (0..hex.len()).step_by(2) {
+        let b = u8::from_str_radix(&hex[i..i+2], 16)
+            .map_err(|_| "Failed to parse hex digit".to_string())?;
+        bytes.push(b);
+    }
+    String::from_utf8(bytes).map_err(|e| e.to_string())
+}
+
+fn get_vault_file_path() -> Result<PathBuf, String> {
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .map_err(|_| "Could not find home directory".to_string())?;
+    Ok(PathBuf::from(home).join(".monolith_vault.json"))
+}
+
+fn write_fallback_token(email: &str, token: &str) -> Result<(), String> {
+    let path = get_vault_file_path()?;
+    let mut map = if path.exists() {
+        let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+        serde_json::from_str::<HashMap<String, String>>(&content).unwrap_or_default()
+    } else {
+        HashMap::new()
+    };
+    let encoded = hex_encode(token);
+    map.insert(email.to_string(), encoded);
+    let json = serde_json::to_string(&map).map_err(|e| e.to_string())?;
+    fs::write(path, json).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+fn read_fallback_token(email: &str) -> Result<Option<String>, String> {
+    let path = get_vault_file_path()?;
+    if !path.exists() {
+        return Ok(None);
+    }
+    let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let map: HashMap<String, String> = serde_json::from_str(&content).unwrap_or_default();
+    if let Some(encoded) = map.get(email) {
+        let decoded = hex_decode(encoded)?;
+        Ok(Some(decoded))
+    } else {
+        Ok(None)
+    }
+}
+
+fn delete_fallback_token(email: &str) -> Result<(), String> {
+    let path = get_vault_file_path()?;
+    if !path.exists() {
+        return Ok(());
+    }
+    let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let mut map: HashMap<String, String> = serde_json::from_str(&content).unwrap_or_default();
+    if map.remove(email).is_some() {
+        let json = serde_json::to_string(&map).map_err(|e| e.to_string())?;
+        fs::write(path, json).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 #[tauri::command]
 fn save_secure_token(email: &str, token: &str) -> Result<(), String> {
-    let entry = Entry::new(SERVICE_NAME, email).map_err(|e| e.to_string())?;
-    entry.set_password(token).map_err(|e| e.to_string())?;
+    match Entry::new(SERVICE_NAME, email) {
+        Ok(entry) => {
+            if let Err(e) = entry.set_password(token) {
+                eprintln!("Keyring save failed ({}), falling back to local file.", e);
+                write_fallback_token(email, token)?;
+            }
+        }
+        Err(e) => {
+            eprintln!("Keyring entry creation failed ({}), falling back to local file.", e);
+            write_fallback_token(email, token)?;
+        }
+    }
     Ok(())
 }
 
 #[tauri::command]
 fn get_secure_token(email: &str) -> Result<Option<String>, String> {
-    let entry = Entry::new(SERVICE_NAME, email).map_err(|e| e.to_string())?;
-    match entry.get_password() {
-        Ok(password) => Ok(Some(password)),
-        Err(keyring::Error::NoEntry) => Ok(None),
-        Err(e) => Err(e.to_string()),
+    match Entry::new(SERVICE_NAME, email) {
+        Ok(entry) => {
+            match entry.get_password() {
+                Ok(password) => Ok(Some(password)),
+                Err(keyring::Error::NoEntry) => {
+                    read_fallback_token(email)
+                }
+                Err(e) => {
+                    eprintln!("Keyring get failed ({}), trying local file fallback.", e);
+                    read_fallback_token(email)
+                }
+            }
+        }
+        Err(e) => {
+            eprintln!("Keyring entry creation failed ({}), trying local file fallback.", e);
+            read_fallback_token(email)
+        }
     }
 }
 
 #[tauri::command]
 fn clear_secure_token(email: &str) -> Result<(), String> {
-    let entry = Entry::new(SERVICE_NAME, email).map_err(|e| e.to_string())?;
-    match entry.delete_password() {
-        Ok(_) => Ok(()),
-        Err(keyring::Error::NoEntry) => Ok(()),
-        Err(e) => Err(e.to_string()),
+    if let Ok(entry) = Entry::new(SERVICE_NAME, email) {
+        let _ = entry.delete_password();
     }
+    delete_fallback_token(email)?;
+    Ok(())
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -173,7 +262,7 @@ fn clear_local_username() -> Result<(), String> {
 // ──────────────────────────────────────────────────────────────────────────────
 
 #[tauri::command]
-fn to_snake_case(text: &str) -> String {
+fn to_pascal_snake_case(text: &str) -> String {
     if text.is_empty() {
         return String::new();
     }
@@ -256,10 +345,10 @@ fn get_supabase_config() -> SupabaseConfig {
 
     // Fallbacks
     if url.is_empty() {
-        url = "https://ltrrrknknhbzhsafgoiu.supabase.co".to_string();
+        url = std::env::var("SUPABASE_URL").unwrap_or_default();
     }
     if key.is_empty() {
-        key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cnJya25rbmhiemhzYWZnb2l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODc3MTEsImV4cCI6MjA5NDM2MzcxMX0.teazRAnf9ExYggvZx3ZTFR43ZaOGDoCcLs0ze7UrXQA".to_string();
+        key = std::env::var("SUPABASE_KEY").unwrap_or_default();
     }
 
     SupabaseConfig { url, key }
@@ -279,7 +368,7 @@ fn main() {
             save_local_username,
             load_local_username,
             clear_local_username,
-            to_snake_case,
+            to_pascal_snake_case,
             get_supabase_config
         ])
         .run(tauri::generate_context!())
