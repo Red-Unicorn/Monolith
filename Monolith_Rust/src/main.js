@@ -370,6 +370,9 @@ function setupEventListeners() {
     resetForms();
     await switchView("home");
   });
+  document.getElementById("ref-exit-btn").addEventListener("click", () => {
+    appWindow.close();
+  });
 
   // Clipboard copies
   const copyRefBtn = document.getElementById("copy-ref-btn");
