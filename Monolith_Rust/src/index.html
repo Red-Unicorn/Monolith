@@ -181,7 +181,7 @@
           </div>
         </div>
 
-        <div class="form-actions mt-30">
+        <div class="form-actions">
           <button class="btn btn-primary back-to-home-btn">Previous</button>
           <button id="project-next-btn" class="btn btn-secondary">Next</button>
         </div>
@@ -235,7 +235,7 @@
           </div>
         </div>
 
-        <div class="form-actions mt-30">
+        <div class="form-actions">
           <button class="btn btn-primary back-to-home-btn">Previous</button>
           <button id="doc-next-btn" class="btn btn-secondary">Next</button>
         </div>
@@ -248,28 +248,30 @@
     <div id="ref-subview" class="subview">
       <div class="ref-card">
         
-        <div class="ref-section">
-          <span class="section-label">Reference Number</span>
-          <div class="value-row">
-            <span class="ref-value" id="generated-ref-val">FR-BNK-PRJ-A1B2</span>
-            <button class="btn-copy-action" id="copy-ref-btn" data-clipboard-id="generated-ref-val">
-              <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
-            </button>
+        <div class="ref-grid">
+          <div class="ref-section">
+            <span class="section-label">Reference Number</span>
+            <div class="value-row">
+              <span class="ref-value" id="generated-ref-val">FR-BNK-PRJ-A1B2</span>
+              <button class="btn-copy-action" id="copy-ref-btn" data-clipboard-id="generated-ref-val">
+                <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
+              </button>
+            </div>
+          </div>
+
+          <div class="ref-section">
+            <span class="section-label">Clean File Name</span>
+            <div class="value-row">
+              <span class="ref-value" id="generated-file-val">Digital_Banking_Platform</span>
+              <button class="btn-copy-action" id="copy-file-btn" data-clipboard-id="generated-file-val">
+                <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
+              </button>
+            </div>
           </div>
         </div>
 
-        <div class="ref-section mt-15">
-          <span class="section-label">Clean File Name</span>
-          <div class="value-row">
-            <span class="ref-value" id="generated-file-val">Digital_Banking_Platform</span>
-            <button class="btn-copy-action" id="copy-file-btn" data-clipboard-id="generated-file-val">
-              <img src="assets/icons/copy.png" alt="Copy" class="copy-img">
-            </button>
-          </div>
-        </div>
-
-        <div class="ref-section mt-15">
-          <span class="section-label">Combined Reference & File Name</span>
+        <div class="ref-section highlighted mt-15">
+          <span class="section-label">Reference Name</span>
           <div class="value-row">
             <span class="ref-value" id="generated-combined-val">FR-BNK-PRJ-A1B2_Digital_Banking_Platform</span>
             <button class="btn-copy-action" id="copy-combined-btn" data-clipboard-id="generated-combined-val">
@@ -278,7 +280,7 @@
           </div>
         </div>
 
-        <div class="form-actions mt-30">
+        <div class="form-actions">
           <button id="ref-back-btn" class="btn btn-primary">Back</button>
           <button id="ref-create-another-btn" class="btn btn-secondary">Create Another</button>
         </div>

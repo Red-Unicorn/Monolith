@@ -70,13 +70,17 @@ body {
 .subview {
   display: none;
   flex-direction: column;
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0;
   opacity: 0;
   transition: opacity var(--transition-normal);
 }
 
 .subview.active {
   display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   opacity: 1;
 }
 
@@ -349,6 +353,7 @@ select:focus {
   padding: 25px 40px 10px;
   display: flex;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .app-header-title {
@@ -436,7 +441,7 @@ select:focus {
    DASHBOARD / HOME PAGE
    ───────────────────────────────────────────────────────────── */
 #home-subview {
-  padding: 30px 40px 40px;
+  padding: 30px 40px 30px;
 }
 
 .dashboard-grid {
@@ -444,7 +449,8 @@ select:focus {
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 25px;
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0;
 }
 
 .dash-card {
@@ -583,13 +589,14 @@ select:focus {
    ───────────────────────────────────────────────────────────── */
 #project-subview,
 #doc-subview {
-  padding: 20px 40px 40px;
+  padding: 20px 40px 30px;
 }
 
 .form-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .form-row {
@@ -639,13 +646,21 @@ textarea {
    GENERATED REFERENCE VIEW
    ───────────────────────────────────────────────────────────── */
 #ref-subview {
-  padding: 10px 40px 40px;
+  padding: 10px 40px 30px;
 }
 
 .ref-card {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0;
+}
+
+.ref-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
 .ref-section {
@@ -653,6 +668,18 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 10px 15px;
+}
+
+.ref-section.highlighted {
+  border-color: var(--accent-blue-hover);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.12);
+  background: linear-gradient(135deg, rgba(27, 79, 114, 0.3) 0%, var(--bg-input) 100%);
+}
+
+.ref-section.highlighted .ref-value {
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
 }
 
 .section-label {
@@ -740,6 +767,13 @@ textarea {
 
 .db-toolbar input {
   flex-grow: 1;
+}
+
+.db-toolbar input,
+.db-toolbar select {
+  height: 42px !important;
+  padding: 0 16px !important;
+  box-sizing: border-box;
 }
 
 .db-filter-wrap {

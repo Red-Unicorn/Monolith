@@ -768,12 +768,7 @@ function handleCopy(button) {
 async function loadDatabaseRecordsCache() {
   if (!supabaseClient) {
     if (!mockInitialized) {
-      dbRecords = [
-        { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", description: "Modern banking web application with microservices", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
-        { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", description: "Security auditing tools for AWS/GCP cloud environments", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
-        { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", description: "Standard service level agreement signed with Bank of France", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
-        { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", description: "Automobile factory line upgrade for electric vehicles", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
-      ];
+      dbRecords = [];
       mockInitialized = true;
     }
     return;
@@ -790,12 +785,7 @@ async function loadDatabaseRecordsCache() {
   } catch (e) {
     console.error("Failed to load database records cache:", e);
     if (!mockInitialized) {
-      dbRecords = [
-        { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", description: "Modern banking web application with microservices", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
-        { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", description: "Security auditing tools for AWS/GCP cloud environments", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
-        { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", description: "Standard service level agreement signed with Bank of France", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
-        { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", description: "Automobile factory line upgrade for electric vehicles", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
-      ];
+      dbRecords = [];
       mockInitialized = true;
     }
   }
@@ -817,13 +807,7 @@ let mockInitialized = false;
 
 function loadMockDatabaseGrid() {
   if (!mockInitialized) {
-    const staticMocks = [
-      { ref_number: "FR-BNK-PRO-A1B2", type: "Project", name_title: "Digital Banking Platform", description: "Modern banking web application with microservices", country: "France", added_by: "John Doe", date_added: "2024-05-20T10:15:00" },
-      { ref_number: "US-ITS-RES-C3D4", type: "Resource", name_title: "Cybersecurity Toolkit", description: "Security auditing tools for AWS/GCP cloud environments", country: "United States", added_by: "Jane Smith", date_added: "2024-05-20T09:42:00" },
-      { ref_number: "20240520-DOC-LGL-FR-BNK-0001", type: "Document", name_title: "Client_Agreement", description: "Standard service level agreement signed with Bank of France", country: "France", added_by: "John Doe", date_added: "2024-05-20T11:02:00" },
-      { ref_number: "DE-MAN-PRO-E5F6", type: "Project", name_title: "Factory Expansion", description: "Automobile factory line upgrade for electric vehicles", country: "Germany", added_by: "Mike Brown", date_added: "2024-05-19T16:33:00" }
-    ];
-    dbRecords = [...dbRecords, ...staticMocks];
+    dbRecords = [];
     mockInitialized = true;
   }
 }
@@ -934,11 +918,22 @@ async function pushRecordToDatabase(refNum, type, name, country, description) {
 // ──────────────────────────────────────────────────────────────────────────────
 // EXPORTS UTILITIES (CSV & EXCEL)
 // ──────────────────────────────────────────────────────────────────────────────
-function exportCSV() {
+function triggerBrowserDownload(content, filename, contentType) {
+  const blob = new Blob([content], { type: contentType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+async function exportCSV() {
   if (dbRecords.length === 0) return;
 
-  let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "Ref. Number,Type,Name / Title,Description,Country,Added By,Date Added\n";
+  let csvContent = "Ref. Number,Type,Name / Title,Description,Country,Added By,Date Added\n";
 
   dbRecords.forEach(r => {
     const row = [
@@ -953,17 +948,27 @@ function exportCSV() {
     csvContent += row.join(",") + "\n";
   });
 
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "monolith_database_export.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  if (isTauri) {
+    try {
+      const { save } = window.__TAURI__.dialog;
+      const { writeTextFile } = window.__TAURI__.fs;
+      const filePath = await save({
+        defaultPath: 'monolith_database_export.csv',
+        filters: [{ name: 'CSV', extensions: ['csv'] }]
+      });
+      if (filePath) {
+        await writeTextFile(filePath, csvContent);
+      }
+    } catch (e) {
+      console.error("Tauri CSV export failed, falling back to browser download:", e);
+      triggerBrowserDownload(csvContent, "monolith_database_export.csv", "text/csv");
+    }
+  } else {
+    triggerBrowserDownload(csvContent, "monolith_database_export.csv", "text/csv");
+  }
 }
 
-function exportExcel() {
-  // Simulates standard Excel layout by calling CSV binary save with a .xls mime header
+async function exportExcel() {
   if (dbRecords.length === 0) return;
 
   let excelContent = "Ref. Number\tType\tName / Title\tDescription\tCountry\tAdded By\tDate Added\n";
@@ -981,12 +986,22 @@ function exportExcel() {
     excelContent += row.join("\t") + "\n";
   });
 
-  const blob = new Blob([excelContent], { type: "application/vnd.ms-excel" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "monolith_database_export.xls");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  if (isTauri) {
+    try {
+      const { save } = window.__TAURI__.dialog;
+      const { writeTextFile } = window.__TAURI__.fs;
+      const filePath = await save({
+        defaultPath: 'monolith_database_export.xls',
+        filters: [{ name: 'Excel', extensions: ['xls'] }]
+      });
+      if (filePath) {
+        await writeTextFile(filePath, excelContent);
+      }
+    } catch (e) {
+      console.error("Tauri Excel export failed, falling back to browser download:", e);
+      triggerBrowserDownload(excelContent, "monolith_database_export.xls", "application/vnd.ms-excel");
+    }
+  } else {
+    triggerBrowserDownload(excelContent, "monolith_database_export.xls", "application/vnd.ms-excel");
+  }
 }
